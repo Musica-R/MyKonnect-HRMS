@@ -314,6 +314,7 @@ export default function PermissionList() {
               <tr>
                 <th>S.No</th>
                 <th>Permission ID</th>
+                <th>Name</th>
                 <th>Date</th>
                 <th>Time Slot</th>
                 <th>Duration</th>
@@ -332,6 +333,9 @@ export default function PermissionList() {
                       <td>{idx + 1}</td>
                       <td>
                         <span className="pl-id-badge">#{p.id}</span>
+                      </td>
+                       <td>
+                        <span className="pl-reason-text">{p.name}</span>
                       </td>
                       <td>{formatDate(p.attendance_date)}</td>
                       <td>

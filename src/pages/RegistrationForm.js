@@ -179,7 +179,15 @@ const RegistrationForm = () => {
           profileimg: null,
         });
       } else {
-        alert('Registration failed: ' + (result.message || 'Unknown error'));
+        if (result.data) {
+          let errorMessages = Object.values(result.data)
+            .flat()
+            .join('\n');
+
+          alert(errorMessages);
+        } else {
+          alert(result.message || 'Registration failed');
+        }
       }
     } catch (error) {
       console.error('Error submitting form:', error);

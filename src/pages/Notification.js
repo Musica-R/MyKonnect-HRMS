@@ -6,7 +6,8 @@ import { IoAdd } from 'react-icons/io5';
 import { MdDeleteOutline } from 'react-icons/md';
 import { FaRegBell } from 'react-icons/fa';
 import { createPortal } from 'react-dom';
-// import { IoIosNotificationsOutline } from 'react-icons/io';
+
+const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const Notification = () => {
   const [formData, setFormData] = useState({
@@ -21,27 +22,26 @@ const Notification = () => {
   const [notificationId, setNotificationId] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const getCurrentMonth = () => String(new Date().getMonth() + 1).padStart(2, '0');
+  const getCurrentYear = () => String(new Date().getFullYear());
+
+  const [month, setMonth] = useState(getCurrentMonth());
+  const [year, setYear] = useState(getCurrentYear());
+
   const defaultOptions = {
     loop: true,
     autoplay: true,
     animationData: animationData,
-    rendererSettings: {
-      preserveAspectRatio: 'xMidYMid slice',
-    },
+    rendererSettings: { preserveAspectRatio: 'xMidYMid slice' },
   };
 
   /* ================= FETCH NOTIFICATION ================= */
-
   useEffect(() => {
     const fetchNotification = async () => {
       try {
-        const response = await fetch(
-          'https://hrms.mpdatahub.com/api/notifications'
-        );
+        const response = await fetch(`${BASE_URL}/notifications?month=${month}&year=${year}`);
         const result = await response.json();
-        if (result.success) {
-          setNotification(result.data);
-        }
+        if (result.success) setNotification(result.data);
       } catch (error) {
         console.error('Error fetching Notifications:', error);
       } finally {
@@ -49,57 +49,29 @@ const Notification = () => {
       }
     };
     fetchNotification();
-  }, [activeForm, deleteId]);
+  }, [activeForm, deleteId, month, year]);
 
   /* ================= HANDLE INPUT ================= */
-
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   /* ================= NOTIFICATION FORM SUBMIT ================= */
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const submitData = new FormData();
-
     Object.keys(formData).forEach((key) => {
-      if (formData[key] !== null) {
-        submitData.append(key, formData[key]);
-      }
+      if (formData[key] !== null) submitData.append(key, formData[key]);
     });
-
     try {
-      const response = await fetch(
-        'https://hrms.mpdatahub.com/api/notification/create',
-        {
-          method: 'POST',
-          body: submitData,
-        }
-      );
-
+      const response = await fetch(`${BASE_URL}/notification/create`, { method: 'POST', body: submitData });
       const result = await response.json();
-
       if (response.ok) {
-        console.log(result);
         alert(result.message || 'Notification Created successfully!');
-
-        setFormData({
-          title: '',
-          type: '',
-          desc: '',
-        });
+        setFormData({ title: '', type: '', desc: '' });
       } else {
-        alert(
-          'Failed to create Notification: ' +
-            (result.message || 'Unknown error')
-        );
+        alert('Failed to create Notification: ' + (result.message || 'Unknown error'));
       }
     } catch (error) {
       console.error('Error submitting form:', error);
@@ -110,293 +82,218 @@ const Notification = () => {
   };
 
   /* ================= NOTIFICATION DELETE ================= */
-
   const handleDelete = async (e) => {
     e.preventDefault();
-    console.log(deleteId);
     const submitData = new FormData();
     submitData.append('id', deleteId);
-
     try {
-      const response = await fetch(
-        `https://hrms.mpdatahub.com/api/delete-Holiday/${deleteId}`
-      );
-
+      const response = await fetch(`${BASE_URL}/notification-delete?id=${deleteId}`);
       const result = await response.json();
-
       if (response.ok) {
-        console.log(result);
         alert(result.message || 'Notification Deleted successfully!');
       } else {
-        alert(
-          'Failed to Delete Notification: ' +
-            (result.message || 'Unknown error')
-        );
+        alert('Failed to Delete Notification: ' + (result.message || 'Unknown error'));
       }
     } catch (error) {
-      console.error('Error deleting notifcation:', error);
+      console.error('Error deleting notification:', error);
       alert('Error deleting notification');
     } finally {
       setDeleteId(null);
     }
   };
 
-  /* ================= NOTIFICATION ================= */
-
+  /* ================= SEND NOTIFICATION ================= */
   const handleNotification = async (e) => {
     e.preventDefault();
-    console.log(notificationId);
     const submitData = new FormData();
     submitData.append('id', notificationId);
-
     try {
-      const response = await fetch(
-        `https://hrms.mpdatahub.com/api/notification/send`,
-        {
-          method: 'POST',
-          body: submitData,
-        }
-      );
-
+      const response = await fetch(`${BASE_URL}/notification/send`, { method: 'POST', body: submitData });
       const result = await response.json();
-
       if (response.ok) {
-        console.log(result);
         alert(result.message || 'Notification Send successfully!');
       } else {
-        alert(
-          'Failed to Send Notification: ' + (result.message || 'Unknown error')
-        );
+        alert('Failed to Send Notification: ' + (result.message || 'Unknown error'));
       }
     } catch (error) {
       console.error('Error in sending notification:', error);
-      alert('Error sending notificaiton');
+      alert('Error sending notification');
     } finally {
       setNotificationId(null);
     }
   };
 
   /* ================= LOADING STATE ================= */
-
   if (loading) {
     return (
-      <div className="attendance-page loading-container">
-        <div className="loader-pulse"></div>
-        <p>Loading Notification records...</p>
+      <div className="notif-loading">
+        <div className="notif-spinner">
+          <span></span><span></span><span></span>
+        </div>
+        <p>Loading notifications…</p>
       </div>
     );
   }
 
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
   return (
-    <div className="form-containers fade-in-up">
-      {/* HEADER */}
-      <div className="page-headers glass-panels">
-        <div className="header-content">
-          <div className="permission-title-group">
-            <Lottie options={defaultOptions} height={70} width={70} />
-            {/* <IoIosNotificationsOutline className="ll-title-icon" /> */}
-            <div>
-              <h1>Notification Records</h1>
-              <p>
-                Centralize notification creation and ensure timely communication
-                of meetings and key events across your organization.
-              </p>
-            </div>
+    <div className="notif-page fade-in-up">
+
+      {/* ── HERO HEADER ── */}
+      <div className="notif-hero">
+        <div className="notif-hero-glow" />
+        <div className="notif-hero-inner">
+          <div className="notif-hero-lottie">
+            <Lottie options={defaultOptions} height={64} width={64} />
+          </div>
+          <div className="notif-hero-text">
+            <h1>Notifications</h1>
+            <p>Centralize notification creation and ensure timely communication of meetings and key events across your organization.</p>
+          </div>
+          <div className="notif-hero-stat">
+            <span className="stat-num">{notifications.length}</span>
+            <span className="stat-label">Scheduled</span>
           </div>
         </div>
       </div>
 
-      <div className="toggle-button">
-        <button
-          className="toggle-btn"
-          onClick={() => setActiveForm((prev) => !prev)}
-        >
-          <IoAdd style={{ fontSize: '15px' }} /> Add Notifications
+      {/* ── TOOLBAR ── */}
+      <div className="notif-toolbar">
+        <div className="notif-filters">
+          <div className="filter-chip">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <select value={month} onChange={(e) => setMonth(e.target.value)}>
+              {monthNames.map((m, i) => (
+                <option key={m} value={String(i + 1).padStart(2, '0')}>{m}</option>
+              ))}
+            </select>
+          </div>
+          <div className="filter-chip">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <input
+              type="number"
+              value={year}
+              onChange={(e) => setYear(e.target.value)}
+              className="year-input"
+            />
+          </div>
+        </div>
+        <button className="notif-add-btn" onClick={() => setActiveForm((prev) => !prev)}>
+          <IoAdd style={{ fontSize: '18px' }} />
+          <span>New Notification</span>
         </button>
       </div>
 
-      {activeForm &&
-        createPortal(
-          <div className="modal-overlays" onClick={() => setActiveForm(false)}>
-            <div
-              className="form-card modal"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                className="close-btn"
-                onClick={() => setActiveForm(false)}
-              >
-                ×
-              </button>
-              <h2 className="form-title">Notification Creator</h2>
+      {/* ── SECTION HEADING ── */}
+      <div className="notif-section-head">
+        <span className="notif-section-title">Scheduled Notifications</span>
+        <span className="notif-section-line" />
+      </div>
 
-              <form onSubmit={handleSubmit} className="registration-form">
-                {/* TITLE */}
-
-                <div className="form-group">
-                  <label>Title</label>
-                  <input
-                    type="text"
-                    name="title"
-                    value={formData.title}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-
-                {/* SCHEDULED DATE */}
-
-                <div className="form-group">
-                  <label>Date</label>
-                  <input
-                    type="date"
-                    name="type"
-                    value={formData.type}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-
-                {/* DESCRIPTION */}
-
-                <div className="form-group full-width">
-                  <label>Description</label>
-
-                  <textarea
-                    name="desc"
-                    value={formData.desc}
-                    onChange={handleChange}
-                    rows="3"
-                    required
-                  ></textarea>
-                </div>
-
-                {/* SUBMIT */}
-
-                <div className="form-actions full-width">
-                  <button type="submit" className="submit-btn">
-                    {' '}
-                    Add Notification{' '}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>,
-          document.body
-        )}
-
-      <h2 className="form-title">Scheduled Notifications</h2>
-      <div className="card-container">
+      {/* ── CARDS GRID ── */}
+      <div className="notif-grid">
         {notifications.length === 0 ? (
-          <div className="ll-center">
-            <p>No Permission records found matching your criteria.</p>
+          <div className="notif-empty">
+            <div className="notif-empty-icon">
+              <FaRegBell />
+            </div>
+            <p>No notifications found for {monthNames[parseInt(month) - 1]} {year}</p>
           </div>
         ) : (
-          notifications.map((data) => (
-            <div className="holiday-card" key={data.id}>
-              <div className="toggle-button">
-                <button
-                  className="delete-icon"
-                  onClick={() => setNotificationId(data.id)}
-                >
-                  <FaRegBell style={{ color: '#5355E0' }} />
-                </button>
-                <button
-                  className="delete-icon"
-                  onClick={() => setDeleteId(data.id)}
-                >
-                  <MdDeleteOutline
-                    style={{ fontSize: '23px', color: '#c62828' }}
-                  />
-                </button>
+          notifications.map((data, idx) => (
+            <div className="notif-card" key={data.id} style={{ animationDelay: `${idx * 0.06}s` }}>
+              <div className="notif-card-accent" />
+              <div className="notif-card-top">
+                <div className="notif-card-badge">{data.type}</div>
+                <div className="notif-card-actions">
+                  <button className="nca-btn send" onClick={() => setNotificationId(data.id)} title="Send notification">
+                    <FaRegBell />
+                  </button>
+                  <button className="nca-btn delete" onClick={() => setDeleteId(data.id)} title="Delete">
+                    <MdDeleteOutline />
+                  </button>
+                </div>
               </div>
-              <div className="card-header">
-                <h3>{data.title}</h3>
-                <span className="date">{data.type}</span>
-              </div>
-              <p className="description">{data.description}</p>
+              <h3 className="notif-card-title">{data.title}</h3>
+              <p className="notif-card-desc">{data.description}</p>
             </div>
           ))
         )}
       </div>
 
-      {deleteId &&
-        createPortal(
-          <div className="modal-overlays" onClick={() => setDeleteId(null)}>
-            <div
-              className="form-card modal confirm-box"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button className="close-btn" onClick={() => setDeleteId(null)}>
-                ×
-              </button>
-
-              <h2 className="form-title">Delete Notification</h2>
-
-              <p className="confirm-text">
-                Are you sure you want to delete this Notification?
-              </p>
-
-              <div className="confirm-actions">
-                <button
-                  className="btn btn-secondary"
-                  onClick={() => setDeleteId(null)}
-                >
-                  Cancel
-                </button>
-
-                <button className="btn btn-danger" onClick={handleDelete}>
-                  Delete
-                </button>
+      {/* ── CREATE MODAL ── */}
+      {activeForm && createPortal(
+        <div className="nmodal-overlay" onClick={() => setActiveForm(false)}>
+          <div className="nmodal" onClick={(e) => e.stopPropagation()}>
+            <div className="nmodal-header">
+              <div className="nmodal-icon"><FaRegBell /></div>
+              <div>
+                <h2>Create Notification</h2>
+                <p>Fill in the details below to schedule a new notification.</p>
               </div>
+              <button className="nmodal-close" onClick={() => setActiveForm(false)}>×</button>
             </div>
-          </div>,
-          document.body
-        )}
-
-      {notificationId &&
-        createPortal(
-          <div
-            className="modal-overlays"
-            onClick={() => setNotificationId(null)}
-          >
-            <div
-              className="form-card modal confirm-box"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                className="close-btn"
-                onClick={() => setNotificationId(null)}
-              >
-                ×
-              </button>
-
-              <h2 className="form-title">Send Notification</h2>
-
-              <p className="confirm-text">
-                Are you sure you want to send notification?
-              </p>
-
-              <div className="confirm-actions">
-                <button
-                  className="btn btn-secondary"
-                  onClick={() => setNotificationId(null)}
-                >
-                  Cancel
-                </button>
-
-                <button
-                  className="btn btn-danger"
-                  style={{ background: '#5355E0' }}
-                  onClick={handleNotification}
-                >
-                  Send
-                </button>
+            <form onSubmit={handleSubmit} className="nmodal-form">
+              <div className="nfield">
+                <label>Title</label>
+                <input type="text" name="title" value={formData.title} onChange={handleChange} placeholder="e.g. Team meeting reminder" required />
               </div>
+              <div className="nfield">
+                <label>Scheduled Date</label>
+                <input type="date" name="type" value={formData.type} onChange={handleChange} required />
+              </div>
+              <div className="nfield full">
+                <label>Description</label>
+                <textarea name="desc" value={formData.desc} onChange={handleChange} rows="4" placeholder="Describe the notification content…" required />
+              </div>
+              <div className="nmodal-actions">
+                <button type="button" className="nbtn nbtn-ghost" onClick={() => setActiveForm(false)}>Cancel</button>
+                <button type="submit" className="nbtn nbtn-primary">Create Notification</button>
+              </div>
+            </form>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* ── DELETE CONFIRM ── */}
+      {deleteId && createPortal(
+        <div className="nmodal-overlay" onClick={() => setDeleteId(null)}>
+          <div className="nmodal nmodal-confirm" onClick={(e) => e.stopPropagation()}>
+            <button className="nmodal-close" onClick={() => setDeleteId(null)}>×</button>
+            <div className="nconfirm-icon danger">
+              <MdDeleteOutline />
             </div>
-          </div>,
-          document.body
-        )}
+            <h2>Delete Notification?</h2>
+            <p>This action cannot be undone. The notification will be permanently removed.</p>
+            <div className="nmodal-actions centered">
+              <button className="nbtn nbtn-ghost" onClick={() => setDeleteId(null)}>Cancel</button>
+              <button className="nbtn nbtn-danger" onClick={handleDelete}>Yes, Delete</button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* ── SEND CONFIRM ── */}
+      {notificationId && createPortal(
+        <div className="nmodal-overlay" onClick={() => setNotificationId(null)}>
+          <div className="nmodal nmodal-confirm" onClick={(e) => e.stopPropagation()}>
+            <button className="nmodal-close" onClick={() => setNotificationId(null)}>×</button>
+            <div className="nconfirm-icon send">
+              <FaRegBell />
+            </div>
+            <h2>Send Notification?</h2>
+            <p>This will immediately push the notification to all recipients in your organization.</p>
+            <div className="nmodal-actions centered">
+              <button className="nbtn nbtn-ghost" onClick={() => setNotificationId(null)}>Cancel</button>
+              <button className="nbtn nbtn-send" onClick={handleNotification}>Send Now</button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 };

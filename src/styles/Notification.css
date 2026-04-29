@@ -1,163 +1,57 @@
-/* RegistrationForm.css */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+/* ============================================================
+   Notification.css — Premium redesign
+   Font: DM Sans (display) + DM Mono (accents)
+   ============================================================ */
 
-body {
-    background-color: #f8fbff;
-    margin: 0;
-    font-family: 'Inter', sans-serif;
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap');
+
+/* ── TOKENS ──────────────────────────────────────────────── */
+:root {
+  --n-bg: #f5f4f0;
+  --n-surface: #ffffff;
+  --n-border: rgba(0, 0, 0, 0.08);
+  --n-border-md: rgba(0, 0, 0, 0.13);
+  --n-text-1: #111110;
+  --n-text-2: #6b6b66;
+  --n-text-3: #9b9b94;
+  --n-accent: #3b3af7;
+  --n-accent-soft: rgba(59, 58, 247, 0.08);
+  --n-accent-mid: rgba(59, 58, 247, 0.18);
+  --n-danger: #e5341a;
+  --n-danger-soft: rgba(229, 52, 26, 0.08);
+  --n-send: #0f9b6e;
+  --n-send-soft: rgba(15, 155, 110, 0.09);
+  --n-radius-sm: 8px;
+  --n-radius-md: 12px;
+  --n-radius-lg: 18px;
+  --n-radius-xl: 24px;
+  --n-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.05);
+  --n-shadow-modal: 0 8px 40px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0, 0, 0, 0.08);
+  --font-main: 'DM Sans', sans-serif;
+  --font-mono: 'DM Mono', monospace;
 }
 
-.form-containers {
-    display: flex;
-    flex-direction: column;
-    justify-content: start;
-    align-items: center;
-    min-height: 100vh;
-    padding: 40px 20px;
-    box-sizing: border-box;
-    /* background: linear-gradient(135deg, #ffffff 0%, #87ceeb 100%); */
+/* ── BASE ────────────────────────────────────────────────── */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-.form-card {
-    background: #ffffff;
-    width: 100%;
-    max-width: 850px;
-    border-radius: 16px;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
-    padding: 40px 50px;
-    box-sizing: border-box;
+.notif-page {
+  font-family: var(--font-main);
+  min-height: 100vh;
+  padding: 32px 28px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
-.form-title {
-    color: #0369a1;
-    font-size: 28px;
-    font-weight: 700;
-    margin-bottom: 30px;
-    text-align: center;
-    letter-spacing: -0.5px;
-}
-
-.registration-form {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-}
-
-.form-group.full-width {
-    grid-column: span 2;
-}
-
-.form-group label {
-    font-size: 14px;
-    font-weight: 500;
-    color: #334155;
-    margin-bottom: 8px;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-    width: 100%;
-    padding: 12px 16px;
-    font-size: 15px;
-    color: #1a202c;
-    background-color: #f7fafc;
-    border: 1px solid #cbd5e1;
-    border-radius: 8px;
-    box-sizing: border-box;
-    transition: all 0.3s ease;
-    font-family: inherit;
-}
-
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-    outline: none;
-    border-color: #38bdf8;
-    background-color: #ffffff;
-    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
-}
-
-.form-group textarea {
-    resize: vertical;
-}
-
-/* File input */
-
-.form-group .file-input {
-    padding: 10px;
-    background-color: #ffffff;
-}
-
-.form-group .file-input::file-selector-button {
-    font-weight: 500;
-    color: #0284c7;
-    background-color: #e0f2fe;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    margin-right: 15px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.form-group .file-input::file-selector-button:hover {
-    background-color: #bae6fd;
-}
-
-/* Errors */
-
-.error-input {
-    border-color: #e53e3e !important;
-}
-
-.error-text {
-    color: #e53e3e;
-    font-size: 13px;
-    margin-top: 5px;
-}
-
-/* Submit Button */
-
-.form-actions {
-    margin-top: 10px;
-    display: flex;
-    justify-content: center;
-}
-
-.submit-btn {
-    background: linear-gradient(135deg, #38bdf8, #0ea5e9);
-    color: white;
-    font-size: 16px;
-    font-weight: 600;
-    padding: 14px 28px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    width: 100%;
-    transition: transform 0.1s, box-shadow 0.3s;
-    box-shadow: 0 4px 10px rgba(14, 165, 233, 0.3);
-}
-
-.submit-btn:hover {
-    background: linear-gradient(135deg, #0ea5e9, #0284c7);
-    box-shadow: 0 6px 14px rgba(14, 165, 233, 0.4);
-}
-
-.submit-btn:active {
-    transform: translateY(1px);
-}
-
-/* Animation */
+/* ── FADE IN ─────────────────────────────────────────────── */
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(18px);
   }
 
   to {
@@ -167,370 +61,760 @@ body {
 }
 
 .fade-in-up {
-  animation: fadeInUp .6s ease forwards;
+  animation: fadeInUp 0.5s cubic-bezier(.22, .68, 0, 1.2) forwards;
 }
 
-/* new layout */
-
-.card-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
-  width: 100%;
-}
-
-.holiday-card {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 16px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-  border: 1px solid #eee;
-  transition: all 0.3s ease;
-  max-width: 350px;
-}
-
-.holiday-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.12);
-}
-
-/* Header */
-.card-header {
+/* ── LOADING ─────────────────────────────────────────────── */
+.notif-loading {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  margin-bottom: 10px;
-}
-
-.card-header h3 {
-  font-size: 18px;
-  font-weight: 600;
-  color: #222;
-}
-
-.date {
-  font-size: 12px;
-  background: #f1f3f5;
-  padding: 4px 8px;
-  border-radius: 6px;
-  color: #555;
-}
-
-/* Description */
-.description {
+  justify-content: center;
+  gap: 20px;
+  min-height: 100vh;
+  font-family: var(--font-main);
+  color: var(--n-text-2);
   font-size: 14px;
-  color: #666;
-  margin-bottom: 12px;
-  line-height: 1.5;
 }
 
-.toggle-button{
-    display: flex;
-    width: 100%;
-    justify-content: end;
-    gap: 20px;
+.notif-spinner {
+  display: flex;
+  gap: 7px;
+  align-items: center;
 }
 
-.toggle-btn {
-  background: #2f7ef7;
-  color: white;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
-  cursor: pointer;
+.notif-spinner span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--n-accent);
+  animation: bounce 1.2s infinite ease-in-out;
+}
+
+.notif-spinner span:nth-child(2) {
+  animation-delay: .15s;
+}
+
+.notif-spinner span:nth-child(3) {
+  animation-delay: .3s;
+}
+
+@keyframes bounce {
+
+  0%,
+  80%,
+  100% {
+    transform: scale(0.6);
+    opacity: .4;
+  }
+
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ── HERO HEADER ─────────────────────────────────────────── */
+.notif-hero {
+  position: relative;
+  background: var(--n-surface);
+  border: 1px solid var(--n-border);
+  border-radius: var(--n-radius-xl);
+  padding: 28px 32px;
   margin-bottom: 20px;
-  font-weight: 500;
-  transition: 0.3s;
+  overflow: hidden;
+  box-shadow: var(--n-shadow-card);
+}
+
+.notif-hero-glow {
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 260px;
+  height: 260px;
+  background: radial-gradient(circle, rgba(59, 58, 247, 0.10) 0%, transparent 70%);
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+.notif-hero-inner {
+  position: relative;
   display: flex;
   align-items: center;
-}
-
-.toggle-btn:hover {
-  background: #1c5ed6;
-}
-
-/* Header */
-
-.page-headers {
-  padding: 24px 28px;
-  margin-bottom: 25px;
-  width: 95%;
-}
-
-.glass-panels {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  box-shadow: var(--shadow-sm);
-}
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
   gap: 20px;
 }
 
-.permission-title-group {
+.notif-hero-lottie {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  background: var(--n-accent-soft);
+  border-radius: var(--n-radius-md);
   display: flex;
   align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.notif-hero-text {
+  flex: 1;
+}
+
+.notif-hero-text h1 {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--n-text-1);
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+
+.notif-hero-text p {
+  font-size: 13.5px;
+  color: var(--n-text-2);
+  line-height: 1.55;
+  max-width: 520px;
+}
+
+.notif-hero-stat {
+  flex-shrink: 0;
+  text-align: center;
+  background: var(--n-accent-soft);
+  border: 1px solid var(--n-accent-mid);
+  border-radius: var(--n-radius-md);
+  padding: 14px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-num {
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--n-accent);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--n-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.7;
+}
+
+/* ── TOOLBAR ─────────────────────────────────────────────── */
+.notif-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.notif-filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filter-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--n-surface);
+  border: 1px solid var(--n-border-md);
+  border-radius: var(--n-radius-sm);
+  padding: 9px 14px;
+  color: var(--n-text-2);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.filter-chip:hover {
+  border-color: var(--n-accent);
+  box-shadow: 0 0 0 3px var(--n-accent-soft);
+}
+
+.filter-chip select,
+.filter-chip input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-main);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--n-text-1);
+  cursor: pointer;
+  padding: 0;
+}
+
+.filter-chip .year-input {
+  width: 72px;
+}
+
+.notif-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--n-accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--n-radius-sm);
+  padding: 10px 20px;
+  font-family: var(--font-main);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(59, 58, 247, 0.25);
+  letter-spacing: -0.2px;
+}
+
+.notif-add-btn:hover {
+  background: #2a29e0;
+  box-shadow: 0 4px 16px rgba(59, 58, 247, 0.35);
+}
+
+.notif-add-btn:active {
+  transform: scale(0.97);
+}
+
+/* ── SECTION HEADING ─────────────────────────────────────── */
+.notif-section-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.notif-section-title {
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--n-text-3);
+  white-space: nowrap;
+}
+
+.notif-section-line {
+  flex: 1;
+  height: 1px;
+  background: var(--n-border);
+}
+
+/* ── CARDS GRID ──────────────────────────────────────────── */
+.notif-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
   gap: 16px;
 }
 
-/* form overaly */
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
 
-.close-btn {
-  position: absolute;
-  top: 15px;
-  right: 30px;
-  border: none;
-  background: none;
-  font-size: 22px;
-  cursor: pointer;
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* reuse same overlay */
-.modal-overlays {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, .45);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 99999;
-}
-
-/* same card style */
-.form-card.modal {
+.notif-card {
   position: relative;
-  background: #fff;
-  max-width: 450px;
-  width: 90%;
-  border-radius: 16px;
-  padding: 30px;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
-  animation: fadeInScale 0.3s ease;
+  background: var(--n-surface);
+  border: 1px solid var(--n-border);
+  border-radius: var(--n-radius-lg);
+  padding: 22px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: var(--n-shadow-card);
+  overflow: hidden;
+  animation: cardIn 0.4s cubic-bezier(.22, .68, 0, 1.2) both;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
 }
 
-/* text */
-.confirm-text {
-  margin: 15px 0 25px;
-  font-size: 14px;
-  color: #555;
+.notif-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.10);
+  border-color: var(--n-border-md);
+}
+
+.notif-card-accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--n-accent), #7b7af9);
+  border-radius: var(--n-radius-lg) var(--n-radius-lg) 0 0;
+}
+
+.notif-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.notif-card-badge {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--n-accent);
+  background: var(--n-accent-soft);
+  border: 1px solid var(--n-accent-mid);
+  border-radius: 6px;
+  padding: 3px 9px;
+  letter-spacing: 0.03em;
+  font-weight: 500;
+}
+
+.notif-card-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.nca-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--n-radius-sm);
+  border: 1px solid var(--n-border-md);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+}
+
+.nca-btn:active {
+  transform: scale(0.92);
+}
+
+.nca-btn.send {
+  color: var(--n-send);
+}
+
+.nca-btn.send:hover {
+  background: var(--n-send-soft);
+  border-color: var(--n-send);
+}
+
+.nca-btn.delete {
+  color: var(--n-danger);
+}
+
+.nca-btn.delete:hover {
+  background: var(--n-danger-soft);
+  border-color: var(--n-danger);
+}
+
+.notif-card-title {
+  font-size: 15.5px;
+  font-weight: 600;
+  color: var(--n-text-1);
+  letter-spacing: -0.3px;
+  line-height: 1.3;
+}
+
+.notif-card-desc {
+  font-size: 13.5px;
+  color: var(--n-text-2);
+  line-height: 1.6;
+  flex: 1;
+}
+
+/* ── EMPTY STATE ─────────────────────────────────────────── */
+.notif-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 64px 24px;
   text-align: center;
 }
 
-/* buttons */
-.confirm-actions {
+.notif-empty-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--n-accent-soft);
   display: flex;
-  justify-content: space-between;
-  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  color: var(--n-accent);
 }
 
-.btn{
-  padding: 6px 10px;
-  border-radius: 8px;
-  border: 1px solid rgb(43, 41, 41);
-  width: 100%;
+.notif-empty p {
+  font-size: 14px;
+  color: var(--n-text-3);
+  max-width: 280px;
+  line-height: 1.5;
 }
 
-/* animation */
-@keyframes fadeInScale {
+/* ── MODALS ──────────────────────────────────────────────── */
+.nmodal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 10, 0.48);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  backdrop-filter: blur(4px);
+  animation: overlayIn 0.2s ease;
+}
+
+@keyframes overlayIn {
   from {
     opacity: 0;
-    transform: scale(0.9);
   }
+
   to {
     opacity: 1;
-    transform: scale(1);
   }
 }
 
-.btn-danger {
-  background: #e53935;
-  color: white;
+.nmodal {
+  position: relative;
+  background: var(--n-surface);
+  border-radius: var(--n-radius-xl);
+  box-shadow: var(--n-shadow-modal);
+  width: 90%;
+  max-width: 480px;
+  animation: modalIn 0.25s cubic-bezier(.22, .68, 0, 1.2);
+  overflow: hidden;
 }
 
-.btn-danger:hover {
-  background: #c62828;
-}
-
-.delete-icon{
-    border: none;
-    font-size: 20px;
-    border-radius: 100px;
-    display: flex;
-    justify-content: center;
-    padding: 8px;
-}
-
-.delete-icon:hover{
-  transform: translateY(-3px);
-}
-
-/* ======================== 1024px (Tablet / Small Laptop) ======================== */
-
-@media (max-width:1024px) {
-
-    .form-card {
-        max-width: 760px;
-        padding: 36px 40px;
-    }
-
-    .form-title {
-        font-size: 26px;
-        margin-bottom: 26px;
-    }
-
-    .registration-form {
-        gap: 20px;
-    }
-
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-        font-size: 14px;
-        padding: 11px 14px;
-    }
-
-    .submit-btn {
-        font-size: 15px;
-        padding: 13px 24px;
-    }
-
-    .header-content {
-    gap: 15px;
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.93) translateY(10px);
   }
 
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* CREATE modal header strip */
+.nmodal-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: var(--n-accent-soft);
+  border-bottom: 1px solid var(--n-accent-mid);
+  padding: 22px 24px 20px;
+}
+
+.nmodal-icon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: var(--n-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 17px;
+}
+
+.nmodal-header h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--n-text-1);
+  margin-bottom: 3px;
+}
+
+.nmodal-header p {
+  font-size: 13px;
+  color: var(--n-text-2);
+  line-height: 1.4;
+}
+
+.nmodal-close {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--n-border-md);
+  background: var(--n-surface);
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--n-text-2);
+  transition: background 0.15s;
+}
+
+.nmodal-close:hover {
+  background: var(--n-bg);
+}
+
+/* CREATE FORM */
+.nmodal-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 24px;
+}
+
+.nfield {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nfield.full {
+  grid-column: span 2;
+}
+
+.nfield label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--n-text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.nfield input,
+.nfield textarea {
+  border: 1px solid var(--n-border-md);
+  border-radius: var(--n-radius-sm);
+  padding: 11px 14px;
+  font-family: var(--font-main);
+  font-size: 14px;
+  color: var(--n-text-1);
+  background: var(--n-bg);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  resize: vertical;
+}
+
+.nfield input:focus,
+.nfield textarea:focus {
+  outline: none;
+  border-color: var(--n-accent);
+  background: #fff;
+  box-shadow: 0 0 0 3px var(--n-accent-soft);
+}
+
+.nfield textarea {
+  min-height: 90px;
+}
+
+.nmodal-actions {
+  grid-column: span 2;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.nmodal-actions.centered {
+  justify-content: center;
+  padding: 0 24px 24px;
+}
+
+/* CONFIRM MODAL */
+.nmodal-confirm {
+  max-width: 380px;
+  text-align: center;
+  padding: 36px 28px 28px;
+}
+
+.nmodal-confirm h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--n-text-1);
+  margin-bottom: 8px;
+}
+
+.nmodal-confirm p {
+  font-size: 13.5px;
+  color: var(--n-text-2);
+  line-height: 1.55;
+  max-width: 280px;
+  margin: 0 auto 24px;
+}
+
+.nconfirm-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin: 0 auto 18px;
+}
+
+.nconfirm-icon.danger {
+  background: var(--n-danger-soft);
+  color: var(--n-danger);
+}
+
+.nconfirm-icon.send {
+  background: var(--n-send-soft);
+  color: var(--n-send);
+}
+
+/* BUTTONS */
+.nbtn {
+  font-family: var(--font-main);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 22px;
+  border-radius: var(--n-radius-sm);
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+  letter-spacing: -0.2px;
+}
+
+.nbtn:active {
+  transform: scale(0.97);
+}
+
+.nbtn-ghost {
+  background: transparent;
+  border: 1px solid var(--n-border-md);
+  color: var(--n-text-2);
+}
+
+.nbtn-ghost:hover {
+  background: var(--n-bg);
+}
+
+.nbtn-primary {
+  background: var(--n-accent);
+  border: 1px solid transparent;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(59, 58, 247, 0.25);
+}
+
+.nbtn-primary:hover {
+  background: #2a29e0;
+  box-shadow: 0 4px 14px rgba(59, 58, 247, 0.3);
+}
+
+.nbtn-danger {
+  background: var(--n-danger);
+  border: 1px solid transparent;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(229, 52, 26, 0.22);
+}
+
+.nbtn-danger:hover {
+  background: #c92a12;
+}
+
+.nbtn-send {
+  background: var(--n-send);
+  border: 1px solid transparent;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(15, 155, 110, 0.22);
+}
+
+.nbtn-send:hover {
+  background: #0a8560;
 }
 
 
-/* ======================== 768px (Tablet / Large Mobile) ======================== */
+/* ── RESPONSIVE ──────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .notif-page {
+    padding: 24px 20px 48px;
+  }
+}
 
-@media (max-width:768px) {
+@media (max-width: 768px) {
+  .notif-page {
+    padding: 18px 16px 40px;
+  }
 
-    .form-containers {
-        padding: 30px 18px;
-    }
-
-    .form-card {
-        max-width: 100%;
-        padding: 30px 26px;
-        border-radius: 14px;
-    }
-
-    .form-title {
-        font-size: 24px;
-    }
-
-    .registration-form {
-        grid-template-columns: 1fr;
-        gap: 18px;
-    }
-
-    .form-group.full-width {
-        grid-column: span 1;
-    }
-
-    .form-group label {
-        font-size: 13px;
-    }
-
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-        font-size: 14px;
-        padding: 11px 13px;
-    }
-
-    .submit-btn {
-        padding: 12px;
-        font-size: 15px;
-    }
-
-    .holiday-card {
-        max-width: 100%;
-        padding: 14px;
-    }
-
-    .card-header h3 {
-        font-size: 16px;
-    }
-
-    .description {
-        font-size: 13px;
-    }
-    
-    .form-card {
+  .notif-hero {
     padding: 20px;
-    max-width: 95%;
   }
 
-  .header-content {
+  .notif-hero-inner {
+    flex-wrap: wrap;
+  }
+
+  .notif-hero-stat {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .stat-num {
+    font-size: 24px;
+  }
+
+  .notif-toolbar {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
+    align-items: stretch;
   }
 
-  .page-headers {
-    width: 85%;
+  .notif-filters {
+    flex-direction: column;
   }
 
+  .filter-chip {
+    width: 100%;
+  }
+
+  .notif-add-btn {
+    justify-content: center;
+  }
+
+  .notif-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .nmodal-form {
+    grid-template-columns: 1fr;
+  }
+
+  .nfield.full {
+    grid-column: span 1;
+  }
+
+  .nmodal-actions {
+    grid-column: span 1;
+  }
 }
 
-
-/* ======================== 420px (Mobile Phones) ======================== */
-
-@media (max-width:420px) {
-
-    .form-containers {
-        padding: 20px 14px;
-    }
-
-    .form-card {
-        padding: 24px 18px;
-        border-radius: 12px;
-    }
-
-    .form-title {
-        font-size: 22px;
-        margin-bottom: 20px;
-    }
-
-    .registration-form {
-        gap: 16px;
-    }
-
-    .form-group label {
-        font-size: 12px;
-    }
-
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-        padding: 10px 12px;
-        font-size: 13px;
-    }
-
-    .submit-btn {
-        font-size: 14px;
-        padding: 11px;
-    }
-
-    .error-text {
-        font-size: 12px;
-    }
-
-    .permission-title-group {
-    flex-direction: column;
-    gap: 10px;
+@media (max-width: 420px) {
+  .notif-hero-text h1 {
+    font-size: 20px;
   }
 
-  .header-content {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
+  .notif-hero-text p {
+    font-size: 13px;
   }
 
+  .notif-hero-lottie {
+    width: 48px;
+    height: 48px;
+  }
+
+  .nmodal {
+    border-radius: var(--n-radius-lg);
+  }
 }
