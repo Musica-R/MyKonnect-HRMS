@@ -18,6 +18,8 @@ const RegistrationForm = () => {
     end_time: '',
     dob: '',
     profileimg: null,
+
+    salary: '',
   });
 
   const [companies, setCompanies] = useState([]);
@@ -177,6 +179,8 @@ const RegistrationForm = () => {
           end_time: '',
           dob: '',
           profileimg: null,
+
+          salary: '',
         });
       } else {
         if (result.data) {
@@ -376,6 +380,18 @@ const RegistrationForm = () => {
                 </option>
               ))}
             </select>
+          </div>
+
+          <div className="form-group">
+            <label>Salary</label>
+
+            <input
+              type="number"
+              name="salary"
+              value={formData.salary}
+              onChange={handleChange}
+              required
+            />
           </div>
 
           {/* START TIME */}

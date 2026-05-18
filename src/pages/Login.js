@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Lottie from 'react-lottie';
+import Lottie from "lottie-react";
 import animationData from '../LottieFiles/App login.json';
 import womanImg from '../assets/women with tab 1.png';
 import '../styles/Login.css';
@@ -12,12 +12,12 @@ const Login = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    const defaultOptions = {
-        loop: true,
-        autoplay: true,
-        animationData: animationData,
-        rendererSettings: { preserveAspectRatio: 'xMidYMid slice' }
-    };
+    // const defaultOptions = {
+    //     loop: true,
+    //     autoplay: true,
+    //     animationData: animationData,
+    //     rendererSettings: { preserveAspectRatio: 'xMidYMid slice' }
+    // };
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -52,7 +52,7 @@ const Login = () => {
                 <div className="login-form-wrapper">
 
                     <div className="login-lottie">
-                        <Lottie options={defaultOptions} height={110} width={110} />
+                       <Lottie animationData={animationData} style={{ width: "110px", height: "110px" }} />
                     </div>
 
                     <h1 className="login-title">LOGIN</h1>

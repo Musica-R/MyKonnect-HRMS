@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import '../styles/AttendanceList.css';
-import Lottie from 'react-lottie';
+import Lottie from "lottie-react";
 import animationData from '../LottieFiles/Completing Tasks.json';
 import * as XLSX from "xlsx-js-style";
 import { useLocation } from "react-router-dom";
@@ -30,55 +31,38 @@ const AttendanceList = () => {
     setDateFilter(value);
   };
 
-  const defaultOptions = {
-    loop: true,
-    autoplay: true,
-    animationData: animationData,
-    rendererSettings: {
-      preserveAspectRatio: 'xMidYMid slice',
-    },
-  };
-
-
   useEffect(() => {
-
     let isMounted = true;
     let timeoutId;
 
     const fetchAttendance = async () => {
       try {
-
         let url = '';
 
         switch (userType) {
           case 'emp_present':
             url = `https://hrms.mpdatahub.com/api/attendance-list?date=${dateFilter}`;
             break;
-
           case 'intern_present':
             url = `https://hrms.mpdatahub.com/api/attendance-list-intern?date=${dateFilter}`;
             break;
-
           case 'emp_absent':
             url = `https://hrms.mpdatahub.com/api/attendance-List-absent?date=${dateFilter}`;
             break;
-
           case 'intern_absent':
             url = `https://hrms.mpdatahub.com/api/attendance-List-absentinten?date=${dateFilter}`;
             break;
-
           default:
             url = `https://hrms.mpdatahub.com/api/attendance-list?date=${dateFilter}`;
         }
-        const response = await fetch(url);
 
+        const response = await fetch(url);
         const result = await response.json();
 
         if (isMounted && result.success && result.data) {
           setAttendanceData(result.data);
           setLoading(false);
         }
-
       } catch (error) {
         console.error('Error fetching attendance data:', error);
       } finally {
@@ -94,10 +78,8 @@ const AttendanceList = () => {
       isMounted = false;
       clearTimeout(timeoutId);
     };
+  }, [dateFilter, userType]);
 
-  }, [dateFilter, userType]); // ✅ ADD userType HERE
-
-  // ✅ FETCH EMPLOYEE / INTERN LIST
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
@@ -120,7 +102,6 @@ const AttendanceList = () => {
     fetchEmployees();
   }, [userType]);
 
-  // ✅ FETCH MONTHLY REPORT
   const fetchMonthlyReport = async () => {
     if (!selectedUser) return alert("Select Employee");
 
@@ -128,7 +109,6 @@ const AttendanceList = () => {
       const res = await fetch(
         `https://hrms.mpdatahub.com/api/get-Monthly-Summary?user_id=${selectedUser}&month=${month}&year=${year}`
       );
-
       const data = await res.json();
 
       if (data.success) {
@@ -141,20 +121,14 @@ const AttendanceList = () => {
 
   const getReportTitle = () => {
     switch (userType) {
-      case 'emp_present':
-        return 'Employee Check-in List';
-      case 'intern_present':
-        return 'Intern Check-in List';
-      case 'emp_absent':
-        return 'Employee Non Check-in List';
-      case 'intern_absent':
-        return 'Intern Non Check-in List';
-      default:
-        return 'Attendance Report';
+      case 'emp_present':    return 'Employee Check-in List';
+      case 'intern_present': return 'Intern Check-in List';
+      case 'emp_absent':     return 'Employee Non Check-in List';
+      case 'intern_absent':  return 'Intern Non Check-in List';
+      default:               return 'Attendance Report';
     }
   };
 
-  // ✅ DAILY EXPORT
   const exportDailyReport = () => {
     const worksheetData = attendanceData.map((item, index) => ({
       "S.No": index + 1,
@@ -166,10 +140,8 @@ const AttendanceList = () => {
       "Worked Hours": item.worked_hours || "-",
     }));
 
-    // Create worksheet starting from row 5
     const worksheet = XLSX.utils.json_to_sheet(worksheetData, { origin: "A5" });
 
-    // Add Company Name + Report Title + Date
     XLSX.utils.sheet_add_aoa(worksheet, [
       ["Muthu & Co"],
       [getReportTitle()],
@@ -177,8 +149,6 @@ const AttendanceList = () => {
       []
     ], { origin: "A1" });
 
-
-    // Apply styles for header
     ["A1", "A2", "A3"].forEach(cell => {
       if (worksheet[cell]) {
         worksheet[cell].s = {
@@ -187,34 +157,23 @@ const AttendanceList = () => {
         };
       }
     });
-    // Merge rows for clean centered header look
+
     worksheet["!merges"] = [
-      { s: { r: 0, c: 0 }, e: { r: 0, c: 6 } }, // Company Name
-      { s: { r: 1, c: 0 }, e: { r: 1, c: 6 } }, // Report Title
-      { s: { r: 2, c: 0 }, e: { r: 2, c: 6 } }  // Date
+      { s: { r: 0, c: 0 }, e: { r: 0, c: 6 } },
+      { s: { r: 1, c: 0 }, e: { r: 1, c: 6 } },
+      { s: { r: 2, c: 0 }, e: { r: 2, c: 6 } }
     ];
 
-    // Column widths
     worksheet["!cols"] = [
-      { wch: 6 },   // S.No
-      { wch: 25 },  // Employee Name
-      { wch: 15 },  // Date
-      { wch: 15 },  // Check In
-      { wch: 15 },  // Check Out
-      { wch: 15 },  // Status
-      { wch: 18 },  // Worked Hours
+      { wch: 6 }, { wch: 25 }, { wch: 15 },
+      { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 18 },
     ];
 
-    // Create workbook
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance Report");
-
-    // Export file
-    XLSX.writeFile(
-      workbook,
-      `${getReportTitle().replace(/\s+/g, '_')}_${dateFilter}.xlsx`
-    );
+    XLSX.writeFile(workbook, `${getReportTitle().replace(/\s+/g, '_')}_${dateFilter}.xlsx`);
   };
+
   const exportMonthlyReport = () => {
     const worksheetData = report.map((r, index) => ({
       "S.No": index + 1,
@@ -226,7 +185,6 @@ const AttendanceList = () => {
 
     const worksheet = XLSX.utils.json_to_sheet(worksheetData, { origin: "A5" });
 
-    // Header
     XLSX.utils.sheet_add_aoa(worksheet, [
       ["Muthu & Co"],
       ["Monthly Attendance Report"],
@@ -234,14 +192,12 @@ const AttendanceList = () => {
       []
     ], { origin: "A1" });
 
-    // Merge (center alignment)
     worksheet["!merges"] = [
       { s: { r: 0, c: 0 }, e: { r: 0, c: 4 } },
       { s: { r: 1, c: 0 }, e: { r: 1, c: 4 } },
       { s: { r: 2, c: 0 }, e: { r: 2, c: 4 } }
     ];
 
-    // Style (BOLD + CENTER)
     ["A1", "A2", "A3"].forEach(cell => {
       if (worksheet[cell]) {
         worksheet[cell].s = {
@@ -251,52 +207,44 @@ const AttendanceList = () => {
       }
     });
 
-    // Column width
     worksheet["!cols"] = [
-      { wch: 6 },
-      { wch: 15 },
-      { wch: 15 },
-      { wch: 15 },
-      { wch: 15 }
+      { wch: 6 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 15 }
     ];
 
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Monthly Report");
-
     XLSX.writeFile(workbook, "Monthly_Attendance_Report.xlsx");
   };
 
-  // FORMAT TIME
   const formatTime = (timeString) => {
     if (!timeString || timeString === '00:00:00') return '--';
-
     const [hour, minute] = timeString.split(':');
     let h = parseInt(hour, 10);
     const ampm = h >= 12 ? 'PM' : 'AM';
     h = h % 12 || 12;
-
     return `${h}:${minute} ${ampm}`;
   };
 
-  // FORMAT DATE
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
-
-    const options = {
-      weekday: 'short',
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    };
-
+    const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
     return new Date(dateString).toLocaleDateString('en-US', options);
   };
 
-  // GET USER INITIALS
   const getInitials = (name) => {
     if (!name) return 'UN';
     return name.substring(0, 2).toUpperCase();
   };
+
+  const formatDuration = (timeString) => {
+    if (!timeString || timeString === '00:00:00') return '--';
+    const [hours, minutes] = timeString.split(':').map(Number);
+    if (hours === 0 && minutes === 0) return '--';
+    if (hours === 0) return `${minutes} min`;
+    if (minutes === 0) return `${hours} hr`;
+    return `${hours} hr ${minutes} min`;
+  };
+
   const openModal = () => {
     setReport([]);
     setSelectedUser('');
@@ -317,24 +265,71 @@ const AttendanceList = () => {
     );
   }
 
-  // FORMAT WORKED HOURS
-  const formatDuration = (timeString) => {
-    if (!timeString || timeString === '00:00:00') return '--';
+  // ✅ Modal rendered via Portal directly into document.body
+  // This escapes any parent with transform/animation that would
+  // break position:fixed, ensuring it's always centered in viewport.
+  const modalContent = showModal ? ReactDOM.createPortal(
+    <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) closeModal(); }}>
+      <div className="modal-box">
+        <h2>Monthly Report</h2>
 
-    const [hours, minutes] = timeString.split(':').map(Number);
+        <select
+          value={selectedUser}
+          onChange={(e) => setSelectedUser(e.target.value)}
+        >
+          <option value="">Select Employee</option>
+          {employees.map((e) => (
+            <option key={e.id} value={e.id}>{e.name}</option>
+          ))}
+        </select>
 
-    if (hours === 0 && minutes === 0) return '--';
+        <input
+          type="number"
+          value={month}
+          onChange={(e) => setMonth(e.target.value)}
+          placeholder="Month"
+        />
+        <input
+          type="number"
+          value={year}
+          onChange={(e) => setYear(e.target.value)}
+          placeholder="Year"
+        />
 
-    if (hours === 0) {
-      return `${minutes} min`;
-    }
+        <button onClick={fetchMonthlyReport}>Get Report</button>
+        <button onClick={exportMonthlyReport}>Export Excel</button>
+        <button onClick={closeModal}>Close</button>
 
-    if (minutes === 0) {
-      return `${hours} hr`;
-    }
-
-    return `${hours} hr ${minutes} min`;
-  };
+        <div className="modal-table">
+          {report.length === 0 ? (
+            <p style={{ marginTop: "10px", padding: "10px", color: "#6b7280" }}>No data available</p>
+          ) : (
+            <table className="elegant-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Check In</th>
+                  <th>Check Out</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {report.map((r, i) => (
+                  <tr key={i}>
+                    <td>{formatDate(r.date)}</td>
+                    <td>{formatTime(r.check_in)}</td>
+                    <td>{formatTime(r.check_out)}</td>
+                    <td>{r.type}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+    </div>,
+    document.body
+  ) : null;
 
   return (
     <div className="attendance-page fade-in-up">
@@ -342,7 +337,7 @@ const AttendanceList = () => {
       <div className="page-header glass-panel">
         <div className="header-content">
           <div className="permission-title-group">
-            <Lottie options={defaultOptions} height={70} width={70} />
+            <Lottie animationData={animationData} style={{ width: "70px", height: "70px" }} />
             <div>
               <h1>Attendance Records</h1>
               <p>Track and manage employee daily presence and work hours.</p>
@@ -353,7 +348,6 @@ const AttendanceList = () => {
             <button className="primary-btn" onClick={exportDailyReport}>
               Download Daily Report
             </button>
-
             <button className="success-btn" onClick={openModal}>
               Monthly Report
             </button>
@@ -368,9 +362,7 @@ const AttendanceList = () => {
         </div>
       </div>
 
-      <div
-        style={{ display: 'flex', width: '100%', gap: '30px', padding: '10px' }}
-      >
+      <div style={{ display: 'flex', width: '100%', gap: '30px', padding: '10px' }}>
         <div className="form-group">
           <label>Date Filter</label>
           <input
@@ -382,48 +374,32 @@ const AttendanceList = () => {
           />
         </div>
       </div>
-      <div className="attendance-toggle">
 
+      <div className="attendance-toggle">
         <button
           className={userType === 'emp_present' ? 'active-toggle' : ''}
-          onClick={() => {
-            setUserType('emp_present');
-            setLoading(true);
-          }}
+          onClick={() => { setUserType('emp_present'); setLoading(true); }}
         >
           Employee Check-in List
         </button>
-
         <button
           className={userType === 'intern_present' ? 'active-toggle' : ''}
-          onClick={() => {
-            setUserType('intern_present');
-            setLoading(true);
-          }}
+          onClick={() => { setUserType('intern_present'); setLoading(true); }}
         >
           Intern Check-in List
         </button>
-
         <button
           className={userType === 'emp_absent' ? 'active-toggle' : ''}
-          onClick={() => {
-            setUserType('emp_absent');
-            setLoading(true);
-          }}
+          onClick={() => { setUserType('emp_absent'); setLoading(true); }}
         >
           Employee Non Check-in List
         </button>
-
         <button
           className={userType === 'intern_absent' ? 'active-toggle' : ''}
-          onClick={() => {
-            setUserType('intern_absent');
-            setLoading(true);
-          }}
+          onClick={() => { setUserType('intern_absent'); setLoading(true); }}
         >
           Intern Non Check-in List
         </button>
-
       </div>
 
       {/* TABLE */}
@@ -442,154 +418,64 @@ const AttendanceList = () => {
                 <th>Shortfall / Overtime</th>
               </tr>
             </thead>
-
             <tbody>
               {attendanceData.length > 0 ? (
                 attendanceData.map((record) => (
                   <tr key={record.id} className="table-row">
-                    {/* EMPLOYEE */}
                     <td>
                       <div className="employee-cell">
-                        <div className="avatar-circle">
-                          {getInitials(record.name)}
-                        </div>
-
+                        <div className="avatar-circle">{getInitials(record.name)}</div>
                         <span className="employee-name">{record.name}</span>
                       </div>
                     </td>
-
-                    {/* DATE */}
                     <td>{formatDate(record.attendance_date)}</td>
-
-                    {/* CHECK IN */}
                     <td>
                       <div className="time-badge in">
-                        {record.type === 'ABSENT'
-                          ? '--'
-                          : formatTime(record.check_in)}
+                        {record.type === 'ABSENT' ? '--' : formatTime(record.check_in)}
                       </div>
                     </td>
-
-                    {/* CHECK OUT */}
                     <td>
                       <div className="time-badge out">
-                        {record.type === 'ABSENT'
-                          ? '--'
-                          : formatTime(record.check_out)}
+                        {record.type === 'ABSENT' ? '--' : formatTime(record.check_out)}
                       </div>
                     </td>
-
-                    {/* STATUS */}
                     <td>
                       <div className="status-flex">
-                        <span
-                          className={`status-pill ${record.type?.toLowerCase() === 'present'
-                            ? 'present'
-                            : 'absent'
-                            }`}
-                        >
+                        <span className={`status-pill ${record.type?.toLowerCase() === 'present' ? 'present' : 'absent'}`}>
                           {record.type || 'N/A'}
                         </span>
-
                         {record.late_checkin === 1 && (
-                          <span
-                            className="late-indicator"
-                            title={`Late by ${record.late_checkin_time}`}
-                          >
+                          <span className="late-indicator" title={`Late by ${record.late_checkin_time}`}>
                             Late
                           </span>
                         )}
                       </div>
                     </td>
                     <td>
-                      {record.late_checkin === 1
-                        ? formatDuration(record.late_checkin_time)
-                        : '--'}
+                      {record.late_checkin === 1 ? formatDuration(record.late_checkin_time) : '--'}
                     </td>
-
-                    {/* WORKED HOURS */}
                     <td>
-                      <span className="hours-text">
-                        {formatDuration(record.worked_hours)}
-                      </span>
+                      <span className="hours-text">{formatDuration(record.worked_hours)}</span>
                     </td>
-
-                    {/* SHORTFALL / OVERTIME */}
                     <td>
-                      <span className="hours-text">
-                        {formatDuration(record.overtimed_hours)}
-                      </span>
+                      <span className="hours-text">{formatDuration(record.overtimed_hours)}</span>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="7" className="empty-state">
+                  <td colSpan="8" className="empty-state">
                     No attendance records found for this period.
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
-
-
         </div>
       </div>
-      {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-box">
 
-            <h2>Monthly Report</h2>
-
-            <select
-              value={selectedUser}
-              onChange={(e) => setSelectedUser(e.target.value)}
-            >
-              <option value="">Select Employee</option>
-              {employees.map((e) => (
-                <option key={e.id} value={e.id}>
-                  {e.name}
-                </option>
-              ))}
-            </select>
-
-            <input type="number" value={month} onChange={(e) => setMonth(e.target.value)} />
-            <input type="number" value={year} onChange={(e) => setYear(e.target.value)} />
-
-            <button onClick={fetchMonthlyReport}>Get Report</button>
-            <button onClick={exportMonthlyReport}>Export Excel</button>
-            <button onClick={closeModal}>Close</button>
-            <div className="modal-table">
-              {report.length === 0 ? (
-                <p style={{ marginTop: "10px" }}>No data available</p>
-              ) : (
-                <table className="elegant-table" style={{ marginTop: "10px" }}>
-                  <thead>
-                    <tr>
-                      <th>Date</th>
-                      <th>Check In</th>
-                      <th>Check Out</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {report.map((r, i) => (
-                      <tr key={i}>
-                        <td>{formatDate(r.date)}</td>
-                        <td>{formatTime(r.check_in)}</td>
-                        <td>{formatTime(r.check_out)}</td>
-                        <td>{r.type}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
-
-          </div>
-        </div>
-      )}
+      {/* Modal rendered via Portal — always centered in viewport */}
+      {modalContent}
     </div>
   );
 };

@@ -6,6 +6,7 @@ import { BsSuitcase2 } from 'react-icons/bs';
 import { MdOutlineNotificationsActive } from 'react-icons/md';
 import { GoOrganization } from 'react-icons/go';
 import { IoTicketOutline } from 'react-icons/io5';
+import { BsCurrencyDollar } from "react-icons/bs";
 
 const AdminLayout = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -88,6 +89,10 @@ const AdminLayout = () => {
                         onClick={closeSidebar}
                     >
                         <FiCalendar className="nav-icon" /> <span>Attendance List</span>
+                    </NavLink>
+
+                     <NavLink to="/admin/payroll-list" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'} onClick={closeSidebar}>
+                        <BsCurrencyDollar className="nav-icon" /> <span>Payroll</span>
                     </NavLink>
 
                     <NavLink

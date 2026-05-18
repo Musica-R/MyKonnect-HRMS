@@ -3,27 +3,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
-
   --primary: #2563eb;
   --success: #16a34a;
   --danger: #dc2626;
   --warning: #f59e0b;
-
   --bg: #f5f7fb;
   --card: #ffffff;
-
   --text-main: #111827;
   --text-muted: #6b7280;
-
   --border: #e5e7eb;
-
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 8px 20px rgba(0, 0, 0, 0.08);
-
 }
 
 /* Page Layout */
-
 .attendance-page {
   padding: 30px;
   max-width: 1200px;
@@ -32,14 +25,13 @@
   color: var(--text-main);
 }
 
-/* Container */
+/* Toggle */
 .attendance-toggle {
   display: flex;
   gap: 10px;
   padding: 10px 0;
 }
 
-/* Default Button */
 .attendance-toggle button {
   padding: 8px 18px;
   border: none;
@@ -51,25 +43,21 @@
   transition: all 0.25s ease;
 }
 
-/* Hover Effect */
 .attendance-toggle button:hover {
   background: #e0e3eb;
 }
 
-/* Active Button */
 .attendance-toggle .active-toggle {
   background: linear-gradient(135deg, #6c5ce7, #8e7dff);
   color: #fff;
   box-shadow: 0 4px 10px rgba(108, 92, 231, 0.3);
 }
 
-/* Optional: Add smooth press effect */
 .attendance-toggle button:active {
   transform: scale(0.95);
 }
 
 /* Card */
-
 .glass-panel {
   background: var(--card);
   border: 1px solid var(--border);
@@ -78,7 +66,6 @@
 }
 
 /* Header */
-
 .page-header {
   padding: 26px 28px;
   margin-bottom: 25px;
@@ -105,7 +92,6 @@
 }
 
 /* Badge */
-
 .stat-badge {
   display: flex;
   flex-direction: column;
@@ -128,7 +114,6 @@
 }
 
 /* Table Container */
-
 .attendance-content {
   padding: 24px;
 }
@@ -138,10 +123,10 @@
 }
 
 /* Table */
-
 .elegant-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: auto;
 }
 
 .elegant-table th {
@@ -152,22 +137,29 @@
   color: var(--text-muted);
   padding: 14px 16px;
   border-bottom: 1px solid var(--border);
+  white-space: nowrap;
 }
 
 .elegant-table td {
   padding: 16px;
   border-bottom: 1px solid var(--border);
   font-size: 14px;
+  white-space: nowrap;
 }
 
-/* Row Hover */
+.elegant-table td:nth-child(1) {
+  min-width: 160px;
+}
+
+.elegant-table td:nth-child(2) {
+  min-width: 150px;
+}
 
 .table-row:hover {
   background: #f9fafb;
 }
 
 /* Employee Cell */
-
 .employee-cell {
   display: flex;
   align-items: center;
@@ -185,6 +177,7 @@
   font-weight: 600;
   font-size: 14px;
   color: #374151;
+  flex-shrink: 0;
 }
 
 .employee-name {
@@ -193,13 +186,14 @@
 }
 
 /* Time Badge */
-
 .time-badge {
   padding: 4px 10px;
   border-radius: 6px;
   font-size: 13px;
   font-weight: 600;
   background: #f3f4f6;
+  white-space: nowrap;
+  display: inline-block;
 }
 
 .time-badge.in {
@@ -212,7 +206,6 @@
 }
 
 /* Status */
-
 .status-flex {
   display: flex;
   flex-direction: column;
@@ -225,6 +218,7 @@
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .status-pill.present {
@@ -244,13 +238,14 @@
   background: var(--warning);
   padding: 2px 6px;
   border-radius: 4px;
+  white-space: nowrap;
 }
 
 /* Hours */
-
 .hours-text {
   font-weight: 600;
   color: #374151;
+  white-space: nowrap;
 }
 
 .remaining-text {
@@ -268,7 +263,6 @@
 }
 
 /* Empty State */
-
 .empty-state {
   text-align: center;
   padding: 40px;
@@ -276,7 +270,6 @@
 }
 
 /* Loader */
-
 .loading-container {
   display: flex;
   flex-direction: column;
@@ -309,8 +302,6 @@
     opacity: .7
   }
 }
-
-/* Animation */
 
 @keyframes fadeInUp {
   from {
@@ -375,45 +366,174 @@
   flex-wrap: wrap;
 }
 
-/* Modal Overlay */
+/* =======================================================
+   MODAL
+   The overlay is rendered via ReactDOM.createPortal into
+   document.body, so it is NEVER inside any transformed or
+   animated ancestor — position:fixed will always be
+   relative to the true viewport.
+   ======================================================= */
 
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.45);
+  inset: 0;
+  /* top/right/bottom/left = 0 */
+  width: 100vw;
+  height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 999;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 9999;
+  padding: 24px;
+  box-sizing: border-box;
+  overflow-y: auto;
 }
-
-/* Modal Box */
 
 .modal-box {
-  background: white;
-  width: 90%;
-  max-width: 700px;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: var(--shadow-md);
-  animation: fadeInUp 0.3s ease;
+  width: 480px;
+  max-width: 100%;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.22);
+  animation: modalFade 0.28s ease;
+  position: relative;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
-/* Header */
+/* Title */
+.modal-box h2 {
+  margin: 0 0 20px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+}
 
+/* Inputs */
+.modal-box select,
+.modal-box input[type="number"],
+.modal-box input[type="text"],
+.modal-box input {
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.modal-box select:focus,
+.modal-box input:focus {
+  border-color: #6c63ff;
+  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.15);
+}
+
+/* Buttons */
+.modal-box button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.modal-box button:active {
+  transform: scale(0.98);
+}
+
+.modal-box button:nth-of-type(1) {
+  background: #6c63ff;
+  color: white;
+}
+
+.modal-box button:nth-of-type(1):hover {
+  background: #5a52e0;
+}
+
+.modal-box button:nth-of-type(2) {
+  background: #28a745;
+  color: white;
+}
+
+.modal-box button:nth-of-type(2):hover {
+  background: #218838;
+}
+
+.modal-box button:nth-of-type(3) {
+  background: #f1f1f1;
+  color: #333;
+}
+
+.modal-box button:nth-of-type(3):hover {
+  background: #ddd;
+}
+
+/* Modal Table */
+.modal-table {
+  max-height: 280px;
+  overflow-y: auto;
+  margin-top: 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.modal-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.modal-table th,
+.modal-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.modal-table tr:last-child td {
+  border-bottom: none;
+}
+
+.modal-table th {
+  text-align: left;
+  color: var(--text-muted);
+  background: #f9fafb;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+@keyframes modalFade {
+  from {
+    opacity: 0;
+    transform: translateY(-18px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Misc */
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 15px;
-}
-
-.modal-header h2 {
-  font-size: 18px;
-  font-weight: 700;
 }
 
 .close-icon {
@@ -423,16 +543,12 @@
   cursor: pointer;
 }
 
-/* Filters */
-
 .modal-filters {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
   margin-bottom: 15px;
 }
-
-/* Inputs */
 
 .modal-filters select,
 .modal-filters input {
@@ -443,146 +559,8 @@
   outline: none;
 }
 
-.modal-filters select:focus,
-.modal-filters input:focus {
-  border-color: var(--primary);
-}
+/* ===================== RESPONSIVE ===================== */
 
-/* Modal Table */
-
-.modal-table {
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-.modal-table table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.modal-table th,
-.modal-table td {
-  padding: 10px;
-  border-bottom: 1px solid var(--border);
-  font-size: 13px;
-}
-
-.modal-table th {
-  text-align: left;
-  color: var(--text-muted);
-}
-
-/* ===== MODAL OVERLAY ===== */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.55);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-  backdrop-filter: blur(6px);
-}
-
-/* ===== MODAL BOX ===== */
-.modal-box {
-  width: 420px;
-  max-width: 90%;
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 25px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-  animation: modalFade 0.3s ease;
-}
-
-/* ===== TITLE ===== */
-.modal-box h2 {
-  margin-bottom: 20px;
-  font-size: 20px;
-  font-weight: 600;
-  color: #333;
-}
-
-/* ===== INPUTS & SELECT ===== */
-.modal-box select,
-.modal-box input {
-  width: 100%;
-  padding: 10px 12px;
-  margin-bottom: 12px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  font-size: 14px;
-  outline: none;
-  transition: all 0.2s ease;
-}
-
-.modal-box select:focus,
-.modal-box input:focus {
-  border-color: #6c63ff;
-  box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.15);
-}
-
-/* ===== BUTTONS ===== */
-.modal-box button {
-  width: 100%;
-  padding: 10px;
-  margin-top: 8px;
-  border-radius: 8px;
-  border: none;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-/* GET REPORT */
-.modal-box button:nth-of-type(1) {
-  background: #6c63ff;
-  color: white;
-}
-
-.modal-box button:nth-of-type(1):hover {
-  background: #5a52e0;
-}
-
-/* EXPORT */
-.modal-box button:nth-of-type(2) {
-  background: #28a745;
-  color: white;
-}
-
-.modal-box button:nth-of-type(2):hover {
-  background: #218838;
-}
-
-/* CLOSE */
-.modal-box button:nth-of-type(3) {
-  background: #f1f1f1;
-  color: #333;
-}
-
-.modal-box button:nth-of-type(3):hover {
-  background: #ddd;
-}
-
-/* ===== ANIMATION ===== */
-@keyframes modalFade {
-  from {
-    opacity: 0;
-    transform: translateY(-20px) scale(0.95);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* Responsive Layouts */
-
-/* Laptop / small desktop - 1024px */
 @media (max-width: 1024px) {
   .attendance-page {
     padding: 20px;
@@ -621,7 +599,6 @@
   }
 }
 
-/* Tablet - 768px */
 @media (max-width: 768px) {
   .attendance-page {
     padding: 15px;
@@ -642,7 +619,6 @@
   }
 
   .attendance-toggle {
-    display: flex;
     flex-direction: column;
     gap: 10px;
   }
@@ -694,7 +670,7 @@
 
 @media (max-width: 500px) {
   .modal-box {
-    padding: 15px;
+    padding: 18px;
   }
 
   .modal-filters {
@@ -708,7 +684,6 @@
   }
 }
 
-/* Mobile - 420px */
 @media (max-width: 420px) {
   .attendance-page {
     padding: 10px;

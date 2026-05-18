@@ -7,34 +7,56 @@ import {
   FiRefreshCw,
   FiAlertCircle,
   FiSearch,
+  FiX,
+  FiFileText,
 } from 'react-icons/fi';
-import Lottie from 'react-lottie';
+import Lottie from 'lottie-react';
 import animationData from '../LottieFiles/Allow Permission.json';
 
-// const PERMISSION_LIST_API = 'https://hrms.mpdatahub.com/api/premissionlist';
-
 const STATUS_CONFIG = {
-  approved: {
-    label: 'Approved',
-    icon: <FiCheckCircle />,
-    cls: 'pl-status-approved',
-  },
+  approved: { label: 'Approved', icon: <FiCheckCircle />, cls: 'pl-status-approved' },
   pending: { label: 'Pending', icon: <FiClock />, cls: 'pl-status-pending' },
-  rejected: {
-    label: 'Rejected',
-    icon: <FiXCircle />,
-    cls: 'pl-status-rejected',
-  },
+  rejected: { label: 'Rejected', icon: <FiXCircle />, cls: 'pl-status-rejected' },
 };
 
-const defaultOptions = {
-  loop: true,
-  autoplay: true,
-  animationData: animationData,
-  rendererSettings: {
-    preserveAspectRatio: 'xMidYMid slice',
-  },
-};
+function truncateWords(text, wordLimit = 10) {
+  if (!text) return { short: '—', isTruncated: false };
+  const words = text.trim().split(/\s+/);
+  if (words.length <= wordLimit) return { short: text, isTruncated: false };
+  return { short: words.slice(0, wordLimit).join(' ') + '…', isTruncated: true };
+}
+
+function ReasonPopup({ reason, employeeName, onClose }) {
+  const handleBackdrop = (e) => { if (e.target === e.currentTarget) onClose(); };
+
+  useEffect(() => {
+    const handler = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [onClose]);
+
+  return (
+    <div className="pl-popup-backdrop" onClick={handleBackdrop}>
+      <div className="pl-popup-modal">
+        <div className="pl-popup-header">
+          <div className="pl-popup-title">
+            <FiFileText className="pl-popup-icon" />
+            <div>
+              <h3>Permission Reason</h3>
+              {employeeName && <p>{employeeName}</p>}
+            </div>
+          </div>
+          <button className="pl-popup-close" onClick={onClose} title="Close">
+            <FiX />
+          </button>
+        </div>
+        <div className="pl-popup-body">
+          <p>{reason}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function PermissionList() {
   const [permissions, setPermissions] = useState([]);
@@ -43,6 +65,7 @@ export default function PermissionList() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [updatingId, setUpdatingId] = useState(null);
+  const [popup, setPopup] = useState(null);
 
   const now = new Date();
   const currentMonth = String(now.getMonth() + 1);
@@ -55,45 +78,28 @@ export default function PermissionList() {
   });
 
   const monthOptions = [
-    { label: 'January', value: '1' },
-    { label: 'February', value: '2' },
-    { label: 'March', value: '3' },
-    { label: 'April', value: '4' },
-    { label: 'May', value: '5' },
-    { label: 'June', value: '6' },
-    { label: 'July', value: '7' },
-    { label: 'August', value: '8' },
-    { label: 'September', value: '9' },
-    { label: 'October', value: '10' },
-    { label: 'November', value: '11' },
-    { label: 'December', value: '12' },
+    { label: 'January', value: '1' }, { label: 'February', value: '2' },
+    { label: 'March', value: '3' }, { label: 'April', value: '4' },
+    { label: 'May', value: '5' }, { label: 'June', value: '6' },
+    { label: 'July', value: '7' }, { label: 'August', value: '8' },
+    { label: 'September', value: '9' }, { label: 'October', value: '10' },
+    { label: 'November', value: '11' }, { label: 'December', value: '12' },
   ];
 
   const handleDate = (e) => {
     const { name, value } = e.target;
-
-    setDateFilter((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setDateFilter((prev) => ({ ...prev, [name]: value }));
   };
 
   const updateStatus = async (id, newStatus) => {
     if (updatingId) return;
     try {
       setUpdatingId(id);
-      const res = await fetch(
-        `https://hrms.mpdatahub.com/api/approve-permission/${id}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-          },
-          body: JSON.stringify({ status: newStatus }),
-        }
-      );
-
+      const res = await fetch(`https://hrms.mpdatahub.com/api/approve-permission/${id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
       const data = await res.json();
       if (data.success) {
         setPermissions((prev) =>
@@ -102,9 +108,8 @@ export default function PermissionList() {
       } else {
         alert(data.message || 'Failed to update status');
       }
-    } catch (err) {
+    } catch {
       alert('Network error while updating status');
-      console.error(err);
     } finally {
       setUpdatingId(null);
     }
@@ -119,15 +124,13 @@ export default function PermissionList() {
           `https://hrms.mpdatahub.com/api/premissionlist?user_id=${dateFilter.user_id}&month=${dateFilter.month}&year=${dateFilter.year}`
         );
         const json = await res.json();
-
         if (json.success) {
           setPermissions(json.data || []);
         } else {
           setError('Failed to fetch permission list');
         }
-      } catch (err) {
+      } catch {
         setError('Network error. Please try again later.');
-        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -138,9 +141,7 @@ export default function PermissionList() {
   const formatDate = (dateStr) => {
     if (!dateStr) return '—';
     return new Date(dateStr).toLocaleDateString('en-IN', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
+      day: '2-digit', month: 'short', year: 'numeric',
     });
   };
 
@@ -153,11 +154,21 @@ export default function PermissionList() {
     return `${displayHour}:${m} ${ampm}`;
   };
 
+  const formatDuration = (value) => {
+    if (!value) return '—';
+    const num = parseFloat(value);
+    if (num < 1) return `${Math.round(num * 100)} min`;
+    const hours = Math.floor(num);
+    const minutes = Math.round((num - hours) * 100);
+    if (minutes === 0) return `${hours} hr`;
+    return `${hours} hr ${minutes} min`;
+  };
+
   const filtered = permissions.filter((p) => {
     const matchesStatus = filterStatus === 'all' || p.status === filterStatus;
     const matchesSearch =
       String(p.id).includes(searchTerm) ||
-      p.reason.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (p.reason || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       String(p.user_id).includes(searchTerm);
     return matchesStatus && matchesSearch;
   });
@@ -169,31 +180,21 @@ export default function PermissionList() {
     rejected: permissions.filter((p) => p.status === 'rejected').length,
   };
 
-  const formatDuration = (value) => {
-    if (!value) return '—';
-
-    const num = parseFloat(value);
-
-    // If less than 1 hour → convert to minutes
-    if (num < 1) {
-      return `${Math.round(num * 100)} min`;
-    }
-
-    const hours = Math.floor(num);
-    const minutes = Math.round((num - hours) * 100);
-
-    if (minutes === 0) {
-      return `${hours} hr`;
-    }
-
-    return `${hours} hr ${minutes} min`;
-  };
-
   return (
     <div className="permission-page fade-in">
+      {/* Popup */}
+      {popup && (
+        <ReasonPopup
+          reason={popup.reason}
+          employeeName={popup.employeeName}
+          onClose={() => setPopup(null)}
+        />
+      )}
+
+      {/* Header */}
       <div className="permission-header">
         <div className="permission-title-group">
-          <Lottie options={defaultOptions} height={70} width={70} />
+          <Lottie animationData={animationData} style={{ width: '70px', height: '90px' }} />
           <div>
             <h1>Permission List</h1>
             <p>Total {counts.all} permission requests found</p>
@@ -213,13 +214,7 @@ export default function PermissionList() {
           </div>
           <button
             className={`pl-refresh-btn ${loading ? 'spinning' : ''}`}
-            onClick={() =>
-              setDateFilter({
-                user_id: '',
-                month: currentMonth,
-                year: currentYear,
-              })
-            }
+            onClick={() => setDateFilter({ user_id: '', month: currentMonth, year: currentYear })}
             disabled={loading}
           >
             <FiRefreshCw />
@@ -227,23 +222,20 @@ export default function PermissionList() {
         </div>
       </div>
 
-      <div
-        style={{ display: 'flex', width: '100%', gap: '30px', padding: '10px' }}
-      >
+      {/* Date Filters */}
+      <div style={{ display: 'flex', width: '100%', gap: '30px', padding: '10px' }}>
         <div className="form-group">
           <label>Month Filter</label>
           <select name="month" value={dateFilter.month} onChange={handleDate}>
             {monthOptions.map((m) => (
-              <option key={m.value} value={m.value}>
-                {m.label}
-              </option>
+              <option key={m.value} value={m.value}>{m.label}</option>
             ))}
           </select>
         </div>
         <div className="form-group">
           <label>Year Filter</label>
           <select name="year" value={dateFilter.year} onChange={handleDate}>
-            {[2026, 2025, 2024, 2023].map((y) => (
+            {Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - 5 + i).map((y) => (
               <option key={y} value={y}>
                 {y}
               </option>
@@ -252,6 +244,7 @@ export default function PermissionList() {
         </div>
       </div>
 
+      {/* Tabs */}
       <div className="pl-tabs">
         {['all', 'approved', 'pending', 'rejected'].map((s) => (
           <button
@@ -265,6 +258,7 @@ export default function PermissionList() {
         ))}
       </div>
 
+      {/* Summary */}
       <div className="pl-summary-grid">
         <div className="pl-summary-card pl-summary-total">
           <span className="pl-card-num">{counts.all}</span>
@@ -284,25 +278,18 @@ export default function PermissionList() {
         </div>
       </div>
 
+      {/* Table */}
       {loading && permissions.length === 0 ? (
         <div className="pl-center">
-          <div className="pl-spinner"></div>
+          <div className="pl-spinner" />
           <p>Fetching permissions...</p>
         </div>
       ) : error ? (
         <div className="pl-error">
-          <span>
-            <FiAlertCircle /> {error}
-          </span>
+          <span><FiAlertCircle /> {error}</span>
           <button
             className="pl-retry-btn"
-            onClick={() =>
-              setDateFilter({
-                user_id: '',
-                month: currentMonth,
-                year: currentYear,
-              })
-            }
+            onClick={() => setDateFilter({ user_id: '', month: currentMonth, year: currentYear })}
           >
             Retry
           </button>
@@ -312,59 +299,74 @@ export default function PermissionList() {
           <table className="pl-table">
             <thead>
               <tr>
-                <th>S.No</th>
-                <th>Permission ID</th>
-                <th>Name</th>
-                <th>Date</th>
-                <th>Time Slot</th>
-                <th>Duration</th>
-                <th>Reason</th>
-                <th>Status</th>
-                <th>Applied On</th>
-                <th style={{ textAlign: 'center' }}>Actions</th>
+                <th style={{ width: '44px' }}>S.No</th>
+                <th style={{ width: '90px' }}>Perm. ID</th>
+                <th style={{ width: '150px' }}>Name</th>
+                <th style={{ width: '110px' }}>Date</th>
+                <th style={{ width: '160px' }}>Time Slot</th>
+                <th style={{ width: '100px' }}>Duration</th>
+                <th style={{ width: '220px' }}>Reason</th>
+                <th style={{ width: '120px' }}>Status</th>
+                <th style={{ width: '110px' }}>Applied On</th>
+                <th style={{ width: '130px', textAlign: 'center' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {filtered.length > 0 ? (
                 filtered.map((p, idx) => {
                   const sc = STATUS_CONFIG[p.status] || STATUS_CONFIG.pending;
+                  const { short, isTruncated } = truncateWords(p.reason, 10);
+
                   return (
                     <tr key={p.id}>
-                      <td>{idx + 1}</td>
+                      <td className="pl-idx">{idx + 1}</td>
+
                       <td>
                         <span className="pl-id-badge">#{p.id}</span>
                       </td>
-                       <td>
-                        <span className="pl-reason-text">{p.name}</span>
+
+                      <td>
+                        <span className="pl-name-text">{p.name}</span>
                       </td>
-                      <td>{formatDate(p.attendance_date)}</td>
+
+                      <td className="pl-date">{formatDate(p.attendance_date)}</td>
+
                       <td>
                         <span className="pl-time-badge">
-                          {formatTime(p.start_time)} - {formatTime(p.end_time)}
+                          {formatTime(p.start_time)} – {formatTime(p.end_time)}
                         </span>
                       </td>
+
                       <td>
-                        <span className="pl-hours">
-                          {formatDuration(p.permission_hours)}
-                        </span>
+                        <span className="pl-hours">{formatDuration(p.permission_hours)}</span>
                       </td>
+
                       <td className="pl-reason-cell">
-                        <div className="pl-reason-text" title={p.reason}>
-                          {p.reason}
+                        <div className="pl-reason-text">
+                          {short}
+                          {isTruncated && (
+                            <button
+                              className="pl-readmore-btn"
+                              onClick={() => setPopup({ reason: p.reason, employeeName: p.name })}
+                            >
+                              Read more
+                            </button>
+                          )}
                         </div>
                       </td>
+
                       <td>
                         <span className={`pl-status ${sc.cls}`}>
                           {sc.icon} {sc.label}
                         </span>
                       </td>
-                      <td style={{ color: '#94a3b8', fontSize: '12px' }}>
-                        {formatDate(p.created_at)}
-                      </td>
+
+                      <td className="pl-date pl-dim">{formatDate(p.created_at)}</td>
+
                       <td style={{ textAlign: 'center' }}>
                         {p.status === 'pending' ? (
                           <select
-                            className="ll-status-dropdown"
+                            className="pl-status-dropdown"
                             value={p.status}
                             disabled={updatingId === p.id}
                             onChange={(e) => updateStatus(p.id, e.target.value)}
@@ -374,13 +376,7 @@ export default function PermissionList() {
                             <option value="rejected">Reject</option>
                           </select>
                         ) : (
-                          <span
-                            style={{
-                              fontSize: '12px',
-                              fontWeight: '600',
-                              color: '#94a3b8',
-                            }}
-                          >
+                          <span className="pl-status-fixed">
                             {sc.icon} {sc.label}
                           </span>
                         )}
@@ -390,10 +386,7 @@ export default function PermissionList() {
                 })
               ) : (
                 <tr>
-                  <td
-                    colSpan="9"
-                    style={{ textAlign: 'center', padding: '40px' }}
-                  >
+                  <td colSpan="10" style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>
                     No permission records found.
                   </td>
                 </tr>

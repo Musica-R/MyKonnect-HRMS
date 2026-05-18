@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/Notification.css';
-import Lottie from 'react-lottie';
+import Lottie from "lottie-react";
 import animationData from '../LottieFiles/Notification Bell.json';
 import { IoAdd } from 'react-icons/io5';
 import { MdDeleteOutline } from 'react-icons/md';
@@ -28,12 +28,12 @@ const Notification = () => {
   const [month, setMonth] = useState(getCurrentMonth());
   const [year, setYear] = useState(getCurrentYear());
 
-  const defaultOptions = {
-    loop: true,
-    autoplay: true,
-    animationData: animationData,
-    rendererSettings: { preserveAspectRatio: 'xMidYMid slice' },
-  };
+  // const defaultOptions = {
+  //   loop: true,
+  //   autoplay: true,
+  //   animationData: animationData,
+  //   rendererSettings: { preserveAspectRatio: 'xMidYMid slice' },
+  // };
 
   /* ================= FETCH NOTIFICATION ================= */
   useEffect(() => {
@@ -145,7 +145,7 @@ const Notification = () => {
         <div className="notif-hero-glow" />
         <div className="notif-hero-inner">
           <div className="notif-hero-lottie">
-            <Lottie options={defaultOptions} height={64} width={64} />
+            <Lottie animationData={animationData} style={{ width: "64px", height: "64px" }} />
           </div>
           <div className="notif-hero-text">
             <h1>Notifications</h1>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/CompanyDetails.css';
-import Lottie from 'react-lottie';
+import Lottie from "lottie-react";
 import animationData from '../LottieFiles/Company.json';
 import { IoAdd } from 'react-icons/io5';
 // import { MdDeleteOutline } from 'react-icons/md';
@@ -38,14 +38,14 @@ const CompanyDetails = () => {
 
   const [loading, setLoading] = useState(true);
 
-  const defaultOptions = {
-    loop: true,
-    autoplay: true,
-    animationData: animationData,
-    rendererSettings: {
-      preserveAspectRatio: 'xMidYMid slice',
-    },
-  };
+  // const defaultOptions = {
+  //   loop: true,
+  //   autoplay: true,
+  //   animationData: animationData,
+  //   rendererSettings: {
+  //     preserveAspectRatio: 'xMidYMid slice',
+  //   },
+  // };
 
   /* ================= EDIT BRANCH ================= */
 
@@ -269,7 +269,7 @@ const CompanyDetails = () => {
       <div className="page-headers glass-panels">
         <div className="header-content">
           <div className="permission-title-group">
-            <Lottie options={defaultOptions} height={70} width={70} />
+            <Lottie animationData={animationData} style={{ width: "70px", height: "70px" }} />
             <div>
               <h1>Add Company</h1>
               <p>

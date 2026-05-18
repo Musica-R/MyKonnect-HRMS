@@ -8,9 +8,10 @@ import {
   FiRefreshCw,
   FiAlertCircle,
   FiSearch,
+  FiX,
+  FiFileText,
 } from 'react-icons/fi';
 
-// const LEAVE_LIST_API = `https://hrms.mpdatahub.com/api/leave-list`;
 const UPDATE_STATUS_API = 'https://hrms.mpdatahub.com/api/update-Leave-status';
 
 const STATUS_CONFIG = {
@@ -33,6 +34,49 @@ function formatDate(dateStr) {
   });
 }
 
+function truncateWords(text, wordLimit = 10) {
+  if (!text) return { short: '—', isTruncated: false };
+  const words = text.trim().split(/\s+/);
+  if (words.length <= wordLimit) return { short: text, isTruncated: false };
+  return { short: words.slice(0, wordLimit).join(' ') + '…', isTruncated: true };
+}
+
+function ReasonPopup({ reason, employeeName, onClose }) {
+  // Close on backdrop click
+  const handleBackdrop = (e) => {
+    if (e.target === e.currentTarget) onClose();
+  };
+
+  // Close on Escape key
+  useEffect(() => {
+    const handler = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [onClose]);
+
+  return (
+    <div className="ll-popup-backdrop" onClick={handleBackdrop}>
+      <div className="ll-popup-modal">
+        <div className="ll-popup-header">
+          <div className="ll-popup-title">
+            <FiFileText className="ll-popup-icon" />
+            <div>
+              <h3>Leave Reason</h3>
+              {employeeName && <p>{employeeName}</p>}
+            </div>
+          </div>
+          <button className="ll-popup-close" onClick={onClose} title="Close">
+            <FiX />
+          </button>
+        </div>
+        <div className="ll-popup-body">
+          <p>{reason}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function LeaveList() {
   const [leaves, setLeaves] = useState([]);
   const [meta, setMeta] = useState({ month: '', total: 0 });
@@ -41,6 +85,7 @@ export default function LeaveList() {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [popup, setPopup] = useState(null); // { reason, employeeName }
 
   const now = new Date();
   const currentMonth = String(now.getMonth() + 1);
@@ -69,11 +114,7 @@ export default function LeaveList() {
 
   const handleDate = (e) => {
     const { name, value } = e.target;
-
-    setDateFilter((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setDateFilter((prev) => ({ ...prev, [name]: value }));
   };
 
   useEffect(() => {
@@ -81,22 +122,17 @@ export default function LeaveList() {
       try {
         setLoading(true);
         setError(null);
-
         const res = await fetch(
           `https://hrms.mpdatahub.com/api/leave-list?user_id=${dateFilter.user_id}&month=${dateFilter.month}&year=${dateFilter.year}`
         );
         const json = await res.json();
-
         if (json.success) {
           setLeaves(json.data);
-          setMeta({
-            month: json.month,
-            total: json.total_leaves,
-          });
+          setMeta({ month: json.month, total: json.total_leaves });
         } else {
           setError('Failed to load leave records.');
         }
-      } catch (err) {
+      } catch {
         setError('Network error. Please try again.');
       } finally {
         setLoading(false);
@@ -105,52 +141,16 @@ export default function LeaveList() {
     fetchLeaves();
   }, [dateFilter]);
 
-  // const fetchLeaves = async () => {
-  //   try {
-  //     setLoading(true);
-  //     setError(null);
-
-  //     const res = await fetch(
-  //       `https://hrms.mpdatahub.com/api/leave-list?user_id=${dateFilter.user_id}&month=${dateFilter.month}&year=${dateFilter.year}`
-  //     );
-  //     const json = await res.json();
-
-  //     if (json.success) {
-  //       setLeaves(json.data);
-  //       setMeta({
-  //         month: json.month,
-  //         total: json.total_leaves,
-  //       });
-  //     } else {
-  //       setError('Failed to load leave records.');
-  //     }
-  //   } catch (err) {
-  //     setError('Network error. Please try again.');
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
   const updateStatus = async (leaveId, newStatus) => {
     if (updatingId) return;
-
     try {
       setUpdatingId(leaveId);
-
       const res = await fetch(UPDATE_STATUS_API, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify({
-          leave_id: leaveId,
-          status: newStatus,
-        }),
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ leave_id: leaveId, status: newStatus }),
       });
-
       const data = await res.json();
-
       if (res.ok && data.success) {
         setLeaves((prev) =>
           prev.map((l) => (l.id === leaveId ? { ...l, status: newStatus } : l))
@@ -158,7 +158,7 @@ export default function LeaveList() {
       } else {
         alert(data.message || 'Failed to update status');
       }
-    } catch (err) {
+    } catch {
       alert('Network error while updating status');
     } finally {
       setUpdatingId(null);
@@ -167,14 +167,12 @@ export default function LeaveList() {
 
   const filtered = leaves.filter((l) => {
     const matchStatus = filterStatus === 'all' || l.status === filterStatus;
-
     const matchSearch =
       String(l.id).includes(searchTerm) ||
       (l.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       (l.empid || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       (l.reason || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       (l.leave_date || '').includes(searchTerm);
-
     return matchStatus && matchSearch;
   });
 
@@ -187,18 +185,12 @@ export default function LeaveList() {
 
   function formatDuration(duration) {
     const d = parseFloat(duration);
-
     if (d === 0.5) return 'Half Day';
-
-    if (d % 1 === 0) {
-      return `${d} Day${d > 1 ? 's' : ''}`;
-    }
-
+    if (d % 1 === 0) return `${d} Day${d > 1 ? 's' : ''}`;
     if (d % 1 === 0.5) {
       const fullDays = Math.floor(d);
       return `${fullDays} Day${fullDays > 1 ? 's' : ''} + Half Day`;
     }
-
     return duration;
   }
 
@@ -209,10 +201,18 @@ export default function LeaveList() {
 
   return (
     <div className="leavelist-page">
+      {/* Popup Modal */}
+      {popup && (
+        <ReasonPopup
+          reason={popup.reason}
+          employeeName={popup.employeeName}
+          onClose={() => setPopup(null)}
+        />
+      )}
+
       <div className="leavelist-header">
         <div className="leavelist-title">
           <FiCalendar className="ll-title-icon" />
-
           <div>
             <h1>Leave Management</h1>
             <p>
@@ -225,7 +225,6 @@ export default function LeaveList() {
         <div className="leavelist-controls">
           <div className="ll-search-wrap">
             <FiSearch className="ll-search-icon" />
-
             <input
               type="text"
               className="ll-search"
@@ -238,11 +237,7 @@ export default function LeaveList() {
           <button
             className="ll-refresh-btn"
             onClick={() =>
-              setDateFilter({
-                user_id: '',
-                month: currentMonth,
-                year: currentYear,
-              })
+              setDateFilter({ user_id: '', month: currentMonth, year: currentYear })
             }
             title="Refresh"
           >
@@ -251,23 +246,19 @@ export default function LeaveList() {
         </div>
       </div>
 
-      <div
-        style={{ display: 'flex', width: '100%', gap: '30px', padding: '10px' }}
-      >
+      <div style={{ display: 'flex', width: '100%', gap: '30px', padding: '10px' }}>
         <div className="form-group">
           <label>Month Filter</label>
           <select name="month" value={dateFilter.month} onChange={handleDate}>
             {monthOptions.map((m) => (
-              <option key={m.value} value={m.value}>
-                {m.label}
-              </option>
+              <option key={m.value} value={m.value}>{m.label}</option>
             ))}
           </select>
         </div>
         <div className="form-group">
           <label>Year Filter</label>
           <select name="year" value={dateFilter.year} onChange={handleDate}>
-            {[2026, 2025, 2024, 2023].map((y) => (
+            {Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - 5 + i).map((y) => (
               <option key={y} value={y}>
                 {y}
               </option>
@@ -284,7 +275,6 @@ export default function LeaveList() {
             onClick={() => setFilterStatus(s)}
           >
             {s.charAt(0).toUpperCase() + s.slice(1)}
-
             <span className="ll-tab-count">{counts[s]}</span>
           </button>
         ))}
@@ -301,15 +291,10 @@ export default function LeaveList() {
         <div className="ll-error">
           <FiAlertCircle />
           {error}
-
           <button
             className="ll-retry"
             onClick={() =>
-              setDateFilter({
-                user_id: '',
-                month: currentMonth,
-                year: currentYear,
-              })
+              setDateFilter({ user_id: '', month: currentMonth, year: currentYear })
             }
           >
             Retry
@@ -323,17 +308,14 @@ export default function LeaveList() {
             <span className="ll-sum-num">{counts.all}</span>
             <span className="ll-sum-label">Total Applied</span>
           </div>
-
           <div className="ll-summary-card ll-summary--approved">
             <span className="ll-sum-num">{counts.approved}</span>
             <span className="ll-sum-label">Approved</span>
           </div>
-
           <div className="ll-summary-card ll-summary--pending">
             <span className="ll-sum-num">{counts.pending}</span>
             <span className="ll-sum-label">Pending</span>
           </div>
-
           <div className="ll-summary-card ll-summary--rejected">
             <span className="ll-sum-num">{counts.rejected}</span>
             <span className="ll-sum-label">Rejected</span>
@@ -352,24 +334,23 @@ export default function LeaveList() {
               <table className="ll-table">
                 <thead>
                   <tr>
-                    <th>#</th>
-                    <th>Leave ID</th>
-                    <th>Employee Details</th>
-                    <th>Leave Date</th>
-                    <th>Reason</th>
-                    <th>Applied On</th>
-                    <th>Leave Duration</th>
-                    <th>Session</th>
-                    <th>Status</th>
-                    <th className="ll-txt-center">Actions</th>
+                    <th style={{ width: '40px' }}>#</th>
+                    <th style={{ width: '80px' }}>Leave ID</th>
+                    <th style={{ width: '160px' }}>Employee Details</th>
+                    <th style={{ width: '110px' }}>Leave Date</th>
+                    <th style={{ width: '220px' }}>Reason</th>
+                    <th style={{ width: '110px' }}>Applied On</th>
+                    <th style={{ width: '120px' }}>Leave Duration</th>
+                    <th style={{ width: '90px' }}>Session</th>
+                    <th style={{ width: '120px' }}>Status</th>
+                    <th style={{ width: '130px' }} className="ll-txt-center">Actions</th>
                   </tr>
                 </thead>
-
                 <tbody>
                   {filtered.map((leave, idx) => {
-                    const sc =
-                      STATUS_CONFIG[leave.status] || STATUS_CONFIG.pending;
+                    const sc = STATUS_CONFIG[leave.status] || STATUS_CONFIG.pending;
                     const isUpdating = updatingId === leave.id;
+                    const { short, isTruncated } = truncateWords(leave.reason, 10);
 
                     return (
                       <tr key={leave.id} className="ll-row">
@@ -386,23 +367,29 @@ export default function LeaveList() {
                           </div>
                         </td>
 
-                        <td className="ll-date">
-                          {formatDate(leave.leave_date)}
-                        </td>
+                        <td className="ll-date">{formatDate(leave.leave_date)}</td>
 
                         <td className="ll-reason-cell">
-                          <div className="ll-reason-text" title={leave.reason}>
-                            {leave.reason || '—'}
+                          <div className="ll-reason-text">
+                            {short}
+                            {isTruncated && (
+                              <button
+                                className="ll-readmore-btn"
+                                onClick={() =>
+                                  setPopup({ reason: leave.reason, employeeName: leave.name })
+                                }
+                              >
+                                Read more
+                              </button>
+                            )}
                           </div>
                         </td>
 
-                        <td className="ll-date ll-dim">
-                          {formatDate(leave.created_at)}
-                        </td>
+                        <td className="ll-date ll-dim">{formatDate(leave.created_at)}</td>
 
-                        <td>{formatDuration(leave.duration)}</td>
+                        <td className="ll-duration-cell">{formatDuration(leave.duration)}</td>
 
-                        <td>{formatHalfDay(leave.half_day)}</td>
+                        <td className="ll-session-cell">{formatHalfDay(leave.half_day)}</td>
 
                         <td>
                           <span className={`ll-status ${sc.cls}`}>
@@ -416,9 +403,7 @@ export default function LeaveList() {
                               className="ll-status-dropdown"
                               value={leave.status || 'pending'}
                               disabled={isUpdating}
-                              onChange={(e) =>
-                                updateStatus(leave.id, e.target.value)
-                              }
+                              onChange={(e) => updateStatus(leave.id, e.target.value)}
                             >
                               <option value="pending">Pending</option>
                               <option value="approved">Approved</option>
@@ -426,7 +411,6 @@ export default function LeaveList() {
                             </select>
                           ) : (
                             <span className="ll-status-fixed">
-                              {' '}
                               {sc.icon} {sc.label}
                             </span>
                           )}

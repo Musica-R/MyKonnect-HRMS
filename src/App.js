@@ -19,7 +19,7 @@ import Notification from './pages/Notification';
 import CompanyDetails from './pages/CompanyDetails';
 import RaiseTicket from './pages/RaiseTicket';
 import ProtectedRoute from './pages/ProtectedRoute';
-
+import Payroll from './pages/Payroll';
 
 
 function App() {
@@ -55,6 +55,7 @@ function App() {
             <Route path="leave-list" element={<LeaveList />} />
             <Route path="permission-list" element={<PermissionList />} />
             <Route path="attendance" element={<AttendanceList />} />
+             <Route path="payroll-list" element={<Payroll />} />
             <Route path="add-holiday" element={<HolidayForm />} />
             <Route path="add-notification" element={<Notification />} />
             <Route path="add-company" element={<CompanyDetails />} />

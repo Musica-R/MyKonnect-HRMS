@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import '../styles/EmpList.css';
 import { FiEdit2, FiX, FiSave, FiSearch } from 'react-icons/fi';
-import Lottie from 'react-lottie';
+import Lottie from "lottie-react";
 import animationData from '../LottieFiles/Employee Search.json';
 
 const API_URL = 'https://hrms.mpdatahub.com/api/employee-List';
@@ -37,14 +37,14 @@ export default function EmpList() {
     fetchInactiveInterns();
   }, []);
 
-  const defaultOptions = {
-    loop: true,
-    autoplay: true,
-    animationData: animationData,
-    rendererSettings: {
-      preserveAspectRatio: 'xMidYMid slice',
-    },
-  };
+  // const defaultOptions = {
+  //   loop: true,
+  //   autoplay: true,
+  //   animationData: animationData,
+  //   rendererSettings: {
+  //     preserveAspectRatio: 'xMidYMid slice',
+  //   },
+  // };
 
   const fetchActiveInterns = async () => {
     try {
@@ -187,6 +187,7 @@ export default function EmpList() {
       empid: emp.empid || '',
       email: emp.email || '',
       mobile: emp.mobile || '',
+      salary: emp.salary || '',
       position: emp.position || '',
       address: emp.address || '',
       dob: emp.dob || '',
@@ -246,9 +247,13 @@ export default function EmpList() {
       if (editData.empid) formData.append('empid', editData.empid);
       if (editData.email) formData.append('email', editData.email);
       if (editData.mobile) formData.append('mobile', editData.mobile);
+      if (editData.salary) {
+        formData.append('salary', editData.salary);
+      }
       if (editData.position) formData.append('position', editData.position);
       if (editData.address) formData.append('address', editData.address);
       if (editData.dob) formData.append('dob', editData.dob);
+
       if (editData.start_time) {
         formData.append('start_time', formatToHMS(editData.start_time));
       }
@@ -295,9 +300,9 @@ export default function EmpList() {
       emp.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
   const openDelete = (id) => {
-  setDeleteId(id);
-  setDeleteModal(true);
-};
+    setDeleteId(id);
+    setDeleteModal(true);
+  };
   /* ---------------- UI ---------------- */
   return (
     <div className="emplist-page">
@@ -305,7 +310,7 @@ export default function EmpList() {
 
       <div className="emplist-header">
         <div className="emplist-title">
-          <Lottie options={defaultOptions} height={90} width={70} />
+          <Lottie animationData={animationData} style={{ width: "90px", height: "90px" }} />
           <div>
             <h1>Employee List</h1>
             <p>{employees.length} employees</p>
@@ -379,6 +384,10 @@ export default function EmpList() {
                   <strong>Phone:</strong> {emp.mobile}
                 </p>
                 <p>
+                  <strong>Salary:</strong> ₹{' '}
+                  {emp.salary ? Number(emp.salary).toLocaleString() : 'N/A'}
+                </p>
+                <p>
                   <strong>DOB:</strong> {emp.dob || 'N/A'}
                 </p>
                 <p>
@@ -434,7 +443,7 @@ export default function EmpList() {
               <button
                 className="modal-close"
                 onClick={() => setEditModal(false)}
-                style={{width : 100}}
+                style={{ width: 100 }}
               >
                 <FiX />
               </button>
@@ -443,57 +452,114 @@ export default function EmpList() {
             {saveError && <div className="modal-api-error">{saveError}</div>}
 
             <div className="modal-form">
-              <input
-                name="name"
-                value={editData.name}
-                onChange={handleEditChange}
-              />
-              <input
-                name="empid"
-                value={editData.empid}
-                onChange={handleEditChange}
-              />
-              <input
-                name="email"
-                value={editData.email}
-                onChange={handleEditChange}
-              />
-              <input
-                name="mobile"
-                value={editData.mobile}
-                onChange={handleEditChange}
-              />
-              <input
-                name="position"
-                value={editData.position}
-                onChange={handleEditChange}
-              />
-              <input
-                type="date"
-                name="dob"
-                value={editData.dob}
-                onChange={handleEditChange}
-              />
-              <input
-                name="address"
-                value={editData.address}
-                onChange={handleEditChange}
-              />
-              <input
-                type="time"
-                name="start_time"
-                value={editData.start_time}
-                onChange={handleEditChange}
-              />
 
-              <input
-                type="time"
-                name="end_time"
-                value={editData.end_time}
-                onChange={handleEditChange}
-              />
+              <div className="form-groups">
+                <label htmlFor="name">Employee Name</label>
+                <input
+                  id="name"
+                  name="name"
+                  value={editData.name}
+                  onChange={handleEditChange}
+                />
+              </div>
+
+              <div className="form-groups">
+                <label htmlFor="empid">Employee ID</label>
+                <input
+                  id="empid"
+                  name="empid"
+                  value={editData.empid}
+                  onChange={handleEditChange}
+                />
+              </div>
+
+              <div className="form-groups">
+                <label htmlFor="email">Email</label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={editData.email}
+                  onChange={handleEditChange}
+                />
+              </div>
+
+              <div className="form-groups">
+                <label htmlFor="mobile">Mobile Number</label>
+                <input
+                  id="mobile"
+                  name="mobile"
+                  value={editData.mobile}
+                  onChange={handleEditChange}
+                />
+              </div>
+
+              <div className="form-groups">
+                <label htmlFor="salary">Salary</label>
+                <input
+                  id="salary"
+                  type="number"
+                  name="salary"
+                  placeholder="Salary"
+                  value={editData.salary}
+                  onChange={handleEditChange}
+                />
+              </div>
+
+              <div className="form-groups">
+                <label htmlFor="position">Position</label>
+                <input
+                  id="position"
+                  name="position"
+                  value={editData.position}
+                  onChange={handleEditChange}
+                />
+              </div>
+
+              <div className="form-groups">
+                <label htmlFor="dob">Date of Birth</label>
+                <input
+                  id="dob"
+                  type="date"
+                  name="dob"
+                  value={editData.dob}
+                  onChange={handleEditChange}
+                />
+              </div>
+
+              <div className="form-groups">
+                <label htmlFor="address">Address</label>
+                <input
+                  id="address"
+                  name="address"
+                  value={editData.address}
+                  onChange={handleEditChange}
+                />
+              </div>
+
+              <div className="form-groups">
+                <label htmlFor="start_time">Start Time</label>
+                <input
+                  id="start_time"
+                  type="time"
+                  name="start_time"
+                  value={editData.start_time}
+                  onChange={handleEditChange}
+                />
+              </div>
+
+              <div className="form-groups">
+                <label htmlFor="end_time">End Time</label>
+                <input
+                  id="end_time"
+                  type="time"
+                  name="end_time"
+                  value={editData.end_time}
+                  onChange={handleEditChange}
+                />
+              </div>
+
             </div>
-
 
 
             <div className="modal-footer">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/RaiseTicket.css';
-import Lottie from 'react-lottie';
+import Lottie from "lottie-react";
 import animationData from '../LottieFiles/Ticket.json';
 import { IoAdd } from 'react-icons/io5';
 import { createPortal } from 'react-dom';
@@ -64,14 +64,14 @@ const RaiseTicket = () => {
     },
   };
 
-  const defaultOptions = {
-    loop: true,
-    autoplay: true,
-    animationData: animationData,
-    rendererSettings: {
-      preserveAspectRatio: 'xMidYMid slice',
-    },
-  };
+  // const defaultOptions = {
+  //   loop: true,
+  //   autoplay: true,
+  //   animationData: animationData,
+  //   rendererSettings: {
+  //     preserveAspectRatio: 'xMidYMid slice',
+  //   },
+  // };
 
   // FORMAT TIME
   const formatTime = (timeString) => {
@@ -278,7 +278,7 @@ const RaiseTicket = () => {
       <div className="rt-page-header">
         <div className="rt-header-left">
           <div className="rt-lottie-wrap">
-            <Lottie options={defaultOptions} height={64} width={64} />
+            <Lottie animationData={animationData} style={{ width: "64px", height: "64px" }} />
           </div>
           <div>
             <h1 className="rt-page-title">Ticket Records</h1>

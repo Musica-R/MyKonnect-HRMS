@@ -9,6 +9,47 @@
   min-height: 100vh;
 }
 
+.form-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 18px;
+  width: 100%;
+}
+
+.form-groups label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  letter-spacing: 0.3px;
+}
+
+.form-groups input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  outline: none;
+  font-size: 14px;
+  background: #fff;
+  transition: all 0.25s ease;
+  box-sizing: border-box;
+}
+
+.form-groups input::placeholder {
+  color: #9ca3af;
+}
+
+.form-groups input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+  background: #f9fbff;
+}
+
+.form-groups input:hover {
+  border-color: #9ca3af;
+}
+
 /* Overlay (background blur) */
 .modal-overlay {
   position: fixed;
