@@ -174,11 +174,11 @@ function PayslipModal({ slip, employee, onClose, logoSrc }) {
   const scheduledHours = slip.scheduled_hours ?? '—';
   const effectiveHours = slip.effective_hours ?? '—';
   const overtimeHours = slip.overtime_hours ?? 0;
-  const delayedHours = slip.delayed_hours ?? 0;
+  // const delayedHours = slip.delayed_hours ?? 0;
   const netHours = slip.net_hours ?? '—';
   const breakHours = slip.break_hours ?? 0;
   const idleHours = slip.idle_hours ?? 0;
-  const netIdleHours = slip.net_idle_hours ?? 0;
+  // const netIdleHours = slip.net_idle_hours ?? 0;
   const increment = slip.increment ?? 0;
   const dailyWorkHours = slip.daily_work_hours ?? '—';
 
@@ -307,10 +307,10 @@ function PayslipModal({ slip, employee, onClose, logoSrc }) {
                 <div className="ps-att-lbl">Idle Hrs</div>
                 <div className="ps-att-val red">{idleHours}</div>
               </div>
-              <div className="ps-att-cell">
+              {/* <div className="ps-att-cell">
                 <div className="ps-att-lbl">Net Idle Hrs</div>
                 <div className="ps-att-val red">{netIdleHours}</div>
-              </div>
+              </div> */}
               <div className="ps-att-cell">
                 <div className="ps-att-lbl">Effective Hrs</div>
                 <div className="ps-att-val green">{effectiveHours}</div>
@@ -320,9 +320,22 @@ function PayslipModal({ slip, employee, onClose, logoSrc }) {
                 <div className="ps-att-val green">{overtimeHours}</div>
               </div>
               <div className="ps-att-cell">
+                <div className="ps-att-lbl">Sunday Worked Days</div>
+                <div className="ps-att-val">
+                  {slip.sunday_worked_days_count ?? 0}
+                </div>
+              </div>
+
+              <div className="ps-att-cell">
+                <div className="ps-att-lbl">Sunday Worked Hours</div>
+                <div className="ps-att-val green">
+                  {slip.sunday_worked_hours ?? 0}
+                </div>
+              </div>
+              {/* <div className="ps-att-cell">
                 <div className="ps-att-lbl">Delayed Hrs</div>
                 <div className="ps-att-val red">{delayedHours}</div>
-              </div>
+              </div> */}
               <div className="ps-att-cell">
                 <div className="ps-att-lbl">Net Hrs</div>
                 <div className="ps-att-val">{netHours}</div>
@@ -666,10 +679,12 @@ function MonthlyPayroll({ employees }) {
                   <th className="pay-th pay-th--r">Effective Hrs</th>
                   <th className="pay-th pay-th--r">OT Hrs</th>
                   <th className="pay-th pay-th--r">OT Pay</th>
-                  <th className="pay-th pay-th--r">Delayed Hrs</th>
+                  {/* <th className="pay-th pay-th--r">Delayed Hrs</th> */}
                   <th className="pay-th pay-th--r">Gross Salary</th>
                   <th className="pay-th pay-th--r">Break Hrs</th>
-                  <th className="pay-th pay-th--r">Net Idle Hrs</th>
+                  {/* <th className="pay-th pay-th--r">Net Idle Hrs</th> */}
+                  <th className="pay-th pay-th--c">Sunday Worked Days</th>
+                  <th className="pay-th pay-th--r">Sunday Hours</th>
                   <th className="pay-th pay-th--r">Net Hrs</th>
                   <th className="pay-th pay-th--c">Effective?</th>
                   <th className="pay-th pay-th--r">LOP Days</th>
@@ -697,10 +712,19 @@ function MonthlyPayroll({ employees }) {
                     <td className="pay-td pay-td--r">{emp.effective_hours != null ? `${emp.effective_hours} hrs` : '—'}</td>
                     <td className="pay-td pay-td--r">{emp.overtime_hours != null ? `${emp.overtime_hours} hrs` : '0 hrs'}</td>
                     <td className="pay-td pay-td--r pay-td--success">₹ {Number(emp.overtime_pay ?? 0).toLocaleString()}</td>
-                    <td className="pay-td pay-td--r pay-td--amount-danger">{emp.delayed_hours != null ? `${emp.delayed_hours} hrs` : '0 hrs'}</td>
+                    {/* <td className="pay-td pay-td--r pay-td--amount-danger">{emp.delayed_hours != null ? `${emp.delayed_hours} hrs` : '0 hrs'}</td> */}
                     <td className="pay-td pay-td--r">₹ {Number(emp.gross_salary ?? 0).toLocaleString()}</td>
                     <td className="pay-td pay-td--r pay-td--muted">{emp.break_hours != null ? `${emp.break_hours} hrs` : '0 hrs'}</td>
-                    <td className="pay-td pay-td--r pay-td--amount-danger">{emp.net_idle_hours != null ? `${emp.net_idle_hours} hrs` : '0 hrs'}</td>
+                    {/* <td className="pay-td pay-td--r pay-td--amount-danger">{emp.net_idle_hours != null ? `${emp.net_idle_hours} hrs` : '0 hrs'}</td> */}
+                    <td className="pay-td pay-td--c">
+                      {emp.sunday_worked_days_count ?? 0}
+                    </td>
+
+                    <td className="pay-td pay-td--r">
+                      {emp.sunday_worked_hours != null
+                        ? `${emp.sunday_worked_hours} hrs`
+                        : '0 hrs'}
+                    </td>
                     <td className="pay-td pay-td--r">{emp.net_hours != null ? `${emp.net_hours} hrs` : '—'}</td>
                     <td className="pay-td pay-td--c">
                       <span className={String(emp.effective_condition).toUpperCase() === 'TRUE' || emp.effective_condition === true ? 'pay-badge pay-badge--success' : 'pay-badge pay-badge--danger'}>
@@ -831,9 +855,11 @@ function DailyPayroll() {
                   <th className="pay-th pay-th--r">Effective Hrs</th>
                   <th className="pay-th pay-th--r">OT Hrs</th>
                   <th className="pay-th pay-th--r">OT Pay</th>
-                  <th className="pay-th pay-th--r">Delayed Hrs</th>
+                  {/* <th className="pay-th pay-th--r">Delayed Hrs</th> */}
                   <th className="pay-th pay-th--r">Break Hrs</th>
-                  <th className="pay-th pay-th--r">Net Idle Hrs</th>
+                  {/* <th className="pay-th pay-th--r">Net Idle Hrs</th> */}
+                  <th className="pay-th">Sunday Worked Days</th>
+                  <th className="pay-th">Sunday Hours</th>
                   <th className="pay-th pay-th--r">Net Hrs</th>
                   <th className="pay-th pay-th--c">Effective?</th>
                   <th className="pay-th pay-th--r">LOP Days</th>
@@ -862,9 +888,18 @@ function DailyPayroll() {
                     <td className="pay-td pay-td--r">{emp.effective_hours != null ? `${emp.effective_hours} hrs` : '—'}</td>
                     <td className="pay-td pay-td--r">{emp.overtime_hours != null ? `${emp.overtime_hours} hrs` : '0 hrs'}</td>
                     <td className="pay-td pay-td--r pay-td--success">₹ {Number(emp.overtime_pay ?? 0).toLocaleString()}</td>
-                    <td className="pay-td pay-td--r pay-td--amount-danger">{emp.delayed_hours != null ? `${emp.delayed_hours} hrs` : '0 hrs'}</td>
+                    {/* <td className="pay-td pay-td--r pay-td--amount-danger">{emp.delayed_hours != null ? `${emp.delayed_hours} hrs` : '0 hrs'}</td> */}
                     <td className="pay-td pay-td--r pay-td--muted">{emp.break_hours != null ? `${emp.break_hours} hrs` : '0 hrs'}</td>
-                    <td className="pay-td pay-td--r pay-td--amount-danger">{emp.net_idle_hours != null ? `${emp.net_idle_hours} hrs` : '0 hrs'}</td>
+                    {/* <td className="pay-td pay-td--r pay-td--amount-danger">{emp.net_idle_hours != null ? `${emp.net_idle_hours} hrs` : '0 hrs'}</td> */}
+                    <td className="pay-td pay-td--c">
+                      {emp.sunday_worked_days_count ?? 0}
+                    </td>
+
+                    <td className="pay-td pay-td--r">
+                      {emp.sunday_worked_hours != null
+                        ? `${emp.sunday_worked_hours} hrs`
+                        : '0 hrs'}
+                    </td>
                     <td className="pay-td pay-td--r">{emp.net_hours != null ? `${emp.net_hours} hrs` : '—'}</td>
                     <td className="pay-td pay-td--c">
                       <span className={String(emp.effective_condition).toUpperCase() === 'TRUE' ? 'pay-badge pay-badge--success' : 'pay-badge pay-badge--danger'}>
