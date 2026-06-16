@@ -87,6 +87,69 @@
   color: #991b1b;
 }
 
+.pay-download-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-left: auto;
+  padding: 4px 0;
+}
+
+.pay-download-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.15s, transform 0.1s;
+  white-space: nowrap;
+}
+
+.pay-download-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.pay-download-btn:not(:disabled):active {
+  transform: scale(0.97);
+}
+
+.pay-download-btn--excel {
+  background: #16a34a;
+  color: #fff;
+}
+
+.pay-download-btn--excel:not(:disabled):hover {
+  background: #15803d;
+}
+
+.pay-download-btn--pdf {
+  background: #dc2626;
+  color: #fff;
+}
+
+.pay-download-btn--pdf:not(:disabled):hover {
+  background: #b91c1c;
+}
+
+@media (max-width: 600px) {
+  .pay-download-actions {
+    width: 100%;
+    margin-left: 0;
+    justify-content: flex-start;
+  }
+  .pay-download-btn {
+    flex: 1;
+    justify-content: center;
+    font-size: 12px;
+    padding: 8px 10px;
+  }
+}
+
 /* ── TABS ────────────────────────────────────────────────── */
 .pay-tabbar {
     display: flex;

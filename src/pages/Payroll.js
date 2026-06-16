@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import * as XLSX from 'xlsx-js-style';
 import '../styles/Payroll.css';
 import logo from "../assets/ass.jpeg";
 
@@ -52,7 +53,6 @@ function PayslipModal({ slip, employee, onClose, logoSrc }) {
   const printRef = useRef();
   const [downloading, setDownloading] = useState(false);
 
-  /* ── PDF DOWNLOAD — always renders at desktop width (780px) ── */
   const handleDownload = async () => {
     setDownloading(true);
     let clone = null;
@@ -157,12 +157,10 @@ function PayslipModal({ slip, employee, onClose, logoSrc }) {
     ? new Date(slip.generated_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })
     : new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
 
-  // ── Map salary/generate API fields ──
   const grossEarnings = Number(slip.gross_salary ?? 0);
   const netPay = Number(slip.net_payable ?? 0);
   const netInWords = amountToWords(netPay);
 
-  // Attendance values
   const totalDays = slip.month_days ?? '—';
   const holidays = slip.holiday_count ?? '—';
   const presentDays = slip.present_days ?? '—';
@@ -170,15 +168,12 @@ function PayslipModal({ slip, employee, onClose, logoSrc }) {
   const compOffDays = slip.comp_off_days ?? 0;
   const clDays = slip.cl_days ?? 0;
 
-  // Hours
   const scheduledHours = slip.scheduled_hours ?? '—';
   const effectiveHours = slip.effective_hours ?? '—';
   const overtimeHours = slip.overtime_hours ?? 0;
-  // const delayedHours = slip.delayed_hours ?? 0;
   const netHours = slip.net_hours ?? '—';
   const breakHours = slip.break_hours ?? 0;
   const idleHours = slip.idle_hours ?? 0;
-  // const netIdleHours = slip.net_idle_hours ?? 0;
   const increment = slip.increment ?? 0;
   const dailyWorkHours = slip.daily_work_hours ?? '—';
 
@@ -202,7 +197,6 @@ function PayslipModal({ slip, employee, onClose, logoSrc }) {
         <div className="pay-slip-scroll">
           <div className="pay-slip-paper" ref={printRef}>
 
-            {/* HEADER */}
             <div className="ps-header">
               <div className="ps-brand">
                 {logoSrc && <img src={logoSrc} alt="Logo" className="ps-logo" crossOrigin="anonymous" />}
@@ -217,7 +211,6 @@ function PayslipModal({ slip, employee, onClose, logoSrc }) {
               </div>
             </div>
 
-            {/* EMPLOYEE INFO BAND */}
             <div className="ps-info-band">
               <div className="ps-info-cell">
                 <div className="ps-info-lbl">Employee Name</div>
@@ -247,7 +240,6 @@ function PayslipModal({ slip, employee, onClose, logoSrc }) {
               </div>
             </div>
 
-            {/* ATTENDANCE */}
             <div className="ps-sec">Attendance Summary</div>
             <div className="ps-attendance-grid">
               <div className="ps-att-cell">
@@ -274,10 +266,6 @@ function PayslipModal({ slip, employee, onClose, logoSrc }) {
                 <div className="ps-att-lbl">CL Days</div>
                 <div className="ps-att-val">{clDays}</div>
               </div>
-              {/* <div className="ps-att-cell">
-                <div className="ps-att-lbl">Total Paid Days</div>
-                <div className="ps-att-val">{slip.total_days ?? '—'}</div>
-              </div> */}
               <div className="ps-att-cell">
                 <div className="ps-att-lbl">Daily Work Hrs</div>
                 <div className="ps-att-val">{slip.daily_work_hours ?? '—'}</div>
@@ -288,7 +276,6 @@ function PayslipModal({ slip, employee, onClose, logoSrc }) {
               </div>
             </div>
 
-            {/* HOURS SUMMARY */}
             <div className="ps-sec">Hours Summary</div>
             <div className="ps-attendance-grid">
               <div className="ps-att-cell">
@@ -307,10 +294,6 @@ function PayslipModal({ slip, employee, onClose, logoSrc }) {
                 <div className="ps-att-lbl">Idle Hrs</div>
                 <div className="ps-att-val red">{idleHours}</div>
               </div>
-              {/* <div className="ps-att-cell">
-                <div className="ps-att-lbl">Net Idle Hrs</div>
-                <div className="ps-att-val red">{netIdleHours}</div>
-              </div> */}
               <div className="ps-att-cell">
                 <div className="ps-att-lbl">Effective Hrs</div>
                 <div className="ps-att-val green">{effectiveHours}</div>
@@ -325,17 +308,12 @@ function PayslipModal({ slip, employee, onClose, logoSrc }) {
                   {slip.sunday_worked_days_count ?? 0}
                 </div>
               </div>
-
               <div className="ps-att-cell">
                 <div className="ps-att-lbl">Sunday Worked Hours</div>
                 <div className="ps-att-val green">
                   {slip.sunday_worked_hours ?? 0}
                 </div>
               </div>
-              {/* <div className="ps-att-cell">
-                <div className="ps-att-lbl">Delayed Hrs</div>
-                <div className="ps-att-val red">{delayedHours}</div>
-              </div> */}
               <div className="ps-att-cell">
                 <div className="ps-att-lbl">Net Hrs</div>
                 <div className="ps-att-val">{netHours}</div>
@@ -348,7 +326,6 @@ function PayslipModal({ slip, employee, onClose, logoSrc }) {
               </div>
             </div>
 
-            {/* EARNINGS & DEDUCTIONS */}
             <div className="ps-sec">Earnings &amp; Deductions</div>
             <div className="ps-ed-grid">
               <table className="ps-tbl">
@@ -404,7 +381,6 @@ function PayslipModal({ slip, employee, onClose, logoSrc }) {
               </table>
             </div>
 
-            {/* NET PAY */}
             <div className="ps-net-row">
               <div className="ps-net-left">
                 <div className="ps-net-title">Net Pay</div>
@@ -415,13 +391,11 @@ function PayslipModal({ slip, employee, onClose, logoSrc }) {
               </div>
             </div>
 
-            {/* AMOUNT IN WORDS */}
             <div className="ps-words-row">
               <span className="ps-words-label">Amount in Words:</span>
               <span className="ps-words-value">{netInWords}</span>
             </div>
 
-            {/* FOOTER */}
             <div className="ps-slip-footer">
               <div className="ps-footer-note">
                 <div>Payroll processed by Muthu & Co</div>
@@ -445,7 +419,6 @@ function PayslipModal({ slip, employee, onClose, logoSrc }) {
    SUMMARY CARDS COMPONENT
 ───────────────────────────────────────────── */
 function SummaryCards({ data, period, meta }) {
-  // Use net_payable for generate API, final_salary for salarySlipList API
   const totalFinal = data.reduce((s, e) => s + Number(e.net_payable ?? e.final_salary ?? 0), 0);
 
   const first = data[0] || {};
@@ -481,6 +454,363 @@ function SummaryCards({ data, period, meta }) {
 }
 
 /* ─────────────────────────────────────────────
+   TABLE COLUMNS DEFINITION (shared for PDF & Excel)
+───────────────────────────────────────────── */
+const TABLE_COLUMNS = [
+  { label: '#',                  key: null,                    type: 'index' },
+  { label: 'Employee',           key: 'employee_name',         type: 'text' },
+  { label: 'Salary',             key: 'total_salary',          type: 'currency', fallback: 'salary' },
+  { label: 'Month Days',         key: 'month_days',            type: 'plain' },
+  { label: 'Holidays',           key: 'holiday_count',         type: 'plain' },
+  { label: 'Present',            key: 'present_days',          type: 'plain' },
+  { label: 'Absent',             key: 'absent_days',           type: 'plain' },
+  { label: 'Comp Off',           key: 'comp_off_days',         type: 'plain', default: 0 },
+  { label: 'CL',                 key: 'cl_days',               type: 'plain', default: 0 },
+  { label: 'Increment',          key: 'increment',             type: 'currency', default: 0 },
+  { label: 'Daily Hrs',          key: 'daily_work_hours',      type: 'hours' },
+  { label: 'Sched. Hrs',         key: 'scheduled_hours',       type: 'hours' },
+  { label: 'Idle Hrs',           key: 'idle_hours',            type: 'hours', default: 0 },
+  { label: 'Effective Hrs',      key: 'effective_hours',       type: 'hours' },
+  { label: 'OT Hrs',             key: 'overtime_hours',        type: 'hours', default: 0 },
+  { label: 'OT Pay',             key: 'overtime_pay',          type: 'currency', default: 0 },
+  { label: 'Gross Salary',       key: 'gross_salary',          type: 'currency', default: 0 },
+  { label: 'Break Hrs',          key: 'break_hours',           type: 'hours', default: 0 },
+  { label: 'Sunday Worked Days', key: 'sunday_worked_days_count', type: 'plain', default: 0 },
+  { label: 'Net Hrs',            key: 'net_hours',             type: 'hours' },
+  { label: 'Effective?',         key: 'effective_condition',   type: 'bool' },
+  { label: 'LOP Days',           key: 'lop_days',              type: 'plain', default: 0 },
+  { label: 'LOP Amt',            key: 'lop_amount',            type: 'currency', default: 0 },
+  { label: 'Net Payable',        key: 'net_payable',           type: 'currency', default: 0 },
+];
+
+/* resolve raw value from a row */
+function rawVal(col, row, idx) {
+  if (col.type === 'index') return idx + 1;
+  const v = row[col.key] ?? row[col.fallback] ?? col.default ?? '—';
+  return v;
+}
+
+/* human-readable cell text for PDF — use Rs. not ₹ (jsPDF built-in font can't render ₹) */
+// function cellText(col, row, idx) {
+//   const v = rawVal(col, row, idx);
+//   if (col.type === 'index') return String(v);
+//   if (col.type === 'currency') return `Rs.${Number(v).toLocaleString('en-IN')}`;
+//   if (col.type === 'hours') return v !== '—' ? `${v}h` : '—';
+//   if (col.type === 'bool') {
+//     return (String(v).toUpperCase() === 'TRUE' || v === true) ? 'Yes' : 'No';
+//   }
+//   return v !== null && v !== undefined ? String(v) : '—';
+// }
+
+/* numeric value for Excel cells */
+function excelVal(col, row, idx) {
+  const v = rawVal(col, row, idx);
+  if (col.type === 'index') return idx + 1;
+  if (col.type === 'currency') return Number(v) || 0;
+  if (col.type === 'hours') return v !== '—' ? Number(v) : '';
+  if (col.type === 'bool') return (String(v).toUpperCase() === 'TRUE' || v === true) ? 'Yes' : 'No';
+  if (col.type === 'plain') return v !== '—' ? (isNaN(v) ? v : Number(v)) : '';
+  return v !== '—' ? v : '';
+}
+
+/* ─────────────────────────────────────────────
+   DOWNLOAD AS EXCEL
+───────────────────────────────────────────── */
+function downloadExcel(list, month, year) {
+  const headerStyle = {
+    font: { bold: true, color: { rgb: 'FFFFFF' }, sz: 11 },
+    fill: { fgColor: { rgb: '1a56db' } },
+    alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+    border: {
+      top:    { style: 'thin', color: { rgb: 'CCCCCC' } },
+      bottom: { style: 'thin', color: { rgb: 'CCCCCC' } },
+      left:   { style: 'thin', color: { rgb: 'CCCCCC' } },
+      right:  { style: 'thin', color: { rgb: 'CCCCCC' } },
+    },
+  };
+
+  const cellStyle = (isEven) => ({
+    font: { sz: 10 },
+    fill: { fgColor: { rgb: isEven ? 'F0F5FF' : 'FFFFFF' } },
+    alignment: { horizontal: 'center', vertical: 'center' },
+    border: {
+      top:    { style: 'thin', color: { rgb: 'DDDDDD' } },
+      bottom: { style: 'thin', color: { rgb: 'DDDDDD' } },
+      left:   { style: 'thin', color: { rgb: 'DDDDDD' } },
+      right:  { style: 'thin', color: { rgb: 'DDDDDD' } },
+    },
+  });
+
+  const totalStyle = {
+    font: { bold: true, sz: 11 },
+    fill: { fgColor: { rgb: 'E8F0FE' } },
+    alignment: { horizontal: 'center', vertical: 'center' },
+    border: {
+      top:    { style: 'medium', color: { rgb: '1a56db' } },
+      bottom: { style: 'medium', color: { rgb: '1a56db' } },
+      left:   { style: 'thin', color: { rgb: 'DDDDDD' } },
+      right:  { style: 'thin', color: { rgb: 'DDDDDD' } },
+    },
+  };
+
+  /* Header row */
+  const headerRow = TABLE_COLUMNS.map(col => ({
+    v: col.label,
+    t: 's',
+    s: headerStyle,
+  }));
+
+  /* Data rows */
+  const dataRows = list.map((emp, idx) =>
+    TABLE_COLUMNS.map(col => {
+      const v = excelVal(col, emp, idx);
+      const t = typeof v === 'number' ? 'n' : 's';
+      return { v, t, s: cellStyle(idx % 2 === 1) };
+    })
+  );
+
+  /* Total row */
+  const totalNetPayable = list.reduce((s, e) => s + Number(e.net_payable ?? 0), 0);
+  const totalRow = TABLE_COLUMNS.map((col, ci) => {
+    if (ci === 0) return { v: 'Total', t: 's', s: { ...totalStyle, font: { ...totalStyle.font, bold: true } } };
+    if (col.label === 'Net Payable') return { v: totalNetPayable, t: 'n', s: totalStyle };
+    return { v: '', t: 's', s: totalStyle };
+  });
+
+  const wsData = [headerRow, ...dataRows, totalRow];
+
+  const ws = XLSX.utils.aoa_to_sheet(wsData.map(row => row.map(c => c.v)));
+
+  /* Apply styles */
+  wsData.forEach((row, ri) => {
+    row.forEach((cell, ci) => {
+      const addr = XLSX.utils.encode_cell({ r: ri, c: ci });
+      if (!ws[addr]) ws[addr] = {};
+      ws[addr].s = cell.s;
+      ws[addr].t = cell.t;
+      ws[addr].v = cell.v;
+    });
+  });
+
+  /* Column widths */
+  ws['!cols'] = TABLE_COLUMNS.map((col, i) => {
+    if (i === 0) return { wch: 4 };
+    if (col.type === 'currency') return { wch: 14 };
+    if (col.type === 'hours') return { wch: 12 };
+    if (col.label === 'Employee') return { wch: 22 };
+    return { wch: 13 };
+  });
+
+  /* Row heights */
+  ws['!rows'] = [{ hpt: 32 }, ...list.map(() => ({ hpt: 22 })), { hpt: 26 }];
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, `${MONTH_NAMES[Number(month)]} ${year}`);
+  XLSX.writeFile(wb, `Payroll_${MONTH_NAMES[Number(month)]}_${year}.xlsx`);
+}
+
+/* ─────────────────────────────────────────────
+   DOWNLOAD AS PDF — all 24 cols on ONE landscape page
+   • Uses short header labels so everything fits in 281 mm
+   • Rs. instead of ₹  (jsPDF built-in font can't render ₹)
+   • Auto-paginates rows if employee count exceeds page height
+───────────────────────────────────────────── */
+async function downloadTablePDF(list, month, year) {
+  const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  const PW = 297;
+  const PH = 210;
+  const M  = 4;           // tight margin so table gets max width
+  const UW = PW - M * 2;  // 289 mm usable
+
+  /* ── Short header labels that fit in narrow columns ── */
+  const PDF_COLS = [
+    { label: '#',          key: null,                     type: 'index'    },
+    { label: 'Employee',   key: 'employee_name',           type: 'text'     },
+    { label: 'Salary',     key: 'total_salary',            type: 'currency', fallback: 'salary' },
+    { label: 'Days',       key: 'month_days',              type: 'plain'    },
+    { label: 'Hols',       key: 'holiday_count',           type: 'plain'    },
+    { label: 'Pres',       key: 'present_days',            type: 'plain'    },
+    { label: 'Abs',        key: 'absent_days',             type: 'plain'    },
+    { label: 'Comp',       key: 'comp_off_days',           type: 'plain',   default: 0 },
+    { label: 'CL',         key: 'cl_days',                 type: 'plain',   default: 0 },
+    { label: 'Incr',       key: 'increment',               type: 'currency', default: 0 },
+    { label: 'DlyHr',      key: 'daily_work_hours',        type: 'hours'    },
+    { label: 'SchHr',      key: 'scheduled_hours',         type: 'hours'    },
+    { label: 'IdleHr',     key: 'idle_hours',              type: 'hours',   default: 0 },
+    { label: 'EffHr',      key: 'effective_hours',         type: 'hours'    },
+    { label: 'OTHr',       key: 'overtime_hours',          type: 'hours',   default: 0 },
+    { label: 'OTPay',      key: 'overtime_pay',            type: 'currency', default: 0 },
+    { label: 'Gross',      key: 'gross_salary',            type: 'currency', default: 0 },
+    { label: 'BrkHr',      key: 'break_hours',             type: 'hours',   default: 0 },
+    { label: 'SunDays',    key: 'sunday_worked_days_count', type: 'plain',  default: 0 },
+    { label: 'NetHr',      key: 'net_hours',               type: 'hours'    },
+    { label: 'Eff?',       key: 'effective_condition',     type: 'bool'     },
+    { label: 'LOPd',       key: 'lop_days',                type: 'plain',   default: 0 },
+    { label: 'LOPAmt',     key: 'lop_amount',              type: 'currency', default: 0 },
+    { label: 'Net Pay',    key: 'net_payable',             type: 'currency', default: 0 },
+  ];
+
+  /* column widths in mm — total must equal UW (289) */
+  const COL_W = [
+    6,   // #
+    28,  // Employee
+    17,  // Salary
+    9,   // Days
+    8,   // Hols
+    8,   // Pres
+    8,   // Abs
+    9,   // Comp
+    7,   // CL
+    13,  // Incr
+    10,  // DlyHr
+    10,  // SchHr
+    10,  // IdleHr
+    10,  // EffHr
+    10,  // OTHr
+    13,  // OTPay
+    16,  // Gross
+    10,  // BrkHr
+    12,  // SunDays
+    10,  // NetHr
+    8,   // Eff?
+    8,   // LOPd
+    13,  // LOPAmt
+    17,  // Net Pay
+  ];
+  // verify / auto-scale so widths always equal UW exactly
+  const rawSum = COL_W.reduce((a, b) => a + b, 0);
+  const scaledW = COL_W.map(w => (w / rawSum) * UW);
+
+  /* cell text resolver — Rs. not ₹ */
+  const pdfCellText = (col, row, idx) => {
+    const v = col.type === 'index'
+      ? idx + 1
+      : row[col.key] ?? row[col.fallback] ?? col.default ?? '—';
+    if (col.type === 'index')    return String(v);
+    if (col.type === 'currency') return `Rs.${Number(v).toLocaleString('en-IN')}`;
+    if (col.type === 'hours')    return v !== '—' ? `${v}h` : '—';
+    if (col.type === 'bool')     return (String(v).toUpperCase() === 'TRUE' || v === true) ? 'Yes' : 'No';
+    return v !== null && v !== undefined ? String(v) : '—';
+  };
+
+  const TITLE_H  = 14;   // mm reserved for title block
+  const HEADER_H = 9;    // mm for column header row
+  const ROW_H    = 7;    // mm per data row
+  const FS_HDR   = 5.5;  // pt — header font
+  const FS_DATA  = 5.5;  // pt — data font
+
+  /* ── Draw title ── */
+  const drawPageTitle = () => {
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(11);
+    pdf.setTextColor(26, 86, 219);
+    pdf.text('Muthu & Co  -  Payroll Report', M, M + 5);
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(7.5);
+    pdf.setTextColor(100, 100, 100);
+    pdf.text(`Period: ${MONTH_NAMES[Number(month)]} ${year}`, M, M + 10);
+    pdf.setDrawColor(26, 86, 219);
+    pdf.setLineWidth(0.4);
+    pdf.line(M, M + 12, PW - M, M + 12);
+  };
+
+  /* ── Draw column header row ── */
+  const drawHeader = (y) => {
+    pdf.setFillColor(26, 86, 219);
+    pdf.rect(M, y, UW, HEADER_H, 'F');
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(FS_HDR);
+    pdf.setTextColor(255, 255, 255);
+    let x = M;
+    PDF_COLS.forEach((col, ci) => {
+      const w = scaledW[ci];
+      pdf.text(col.label, x + w / 2, y + HEADER_H / 2 + 1.5, { align: 'center', maxWidth: w - 0.5 });
+      x += w;
+    });
+    /* white vertical dividers */
+    pdf.setDrawColor(255, 255, 255);
+    pdf.setLineWidth(0.15);
+    let dx = M;
+    scaledW.forEach((w, ci) => {
+      dx += w;
+      if (ci < scaledW.length - 1) pdf.line(dx, y, dx, y + HEADER_H);
+    });
+  };
+
+  /* ── Draw one data row ── */
+  const drawRow = (emp, idx, y) => {
+    if (idx % 2 === 1) {
+      pdf.setFillColor(240, 246, 255);
+      pdf.rect(M, y, UW, ROW_H, 'F');
+    }
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(FS_DATA);
+    pdf.setTextColor(25, 25, 25);
+    let x = M;
+    PDF_COLS.forEach((col, ci) => {
+      const w = scaledW[ci];
+      const txt = pdfCellText(col, emp, idx);
+      pdf.text(txt, x + w / 2, y + ROW_H / 2 + 1.5, { align: 'center', maxWidth: w - 0.5 });
+      x += w;
+    });
+    pdf.setDrawColor(210, 210, 210);
+    pdf.setLineWidth(0.08);
+    pdf.line(M, y + ROW_H, M + UW, y + ROW_H);
+  };
+
+  /* ── Draw total footer row ── */
+  const drawTotalRow = (y) => {
+    const totalNet = list.reduce((s, e) => s + Number(e.net_payable ?? 0), 0);
+    pdf.setFillColor(224, 236, 255);
+    pdf.rect(M, y, UW, ROW_H, 'F');
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(FS_DATA);
+    pdf.setTextColor(26, 86, 219);
+    let x = M;
+    PDF_COLS.forEach((col, ci) => {
+      const w = scaledW[ci];
+      let txt = '';
+      if (ci === 1) txt = 'Total Net Payable';
+      if (col.label === 'Net Pay') txt = `Rs.${totalNet.toLocaleString('en-IN')}`;
+      if (txt) pdf.text(txt, x + w / 2, y + ROW_H / 2 + 1.5, { align: 'center', maxWidth: w - 0.5 });
+      x += w;
+    });
+    pdf.setDrawColor(26, 86, 219);
+    pdf.setLineWidth(0.4);
+    pdf.line(M, y, M + UW, y);
+    pdf.line(M, y + ROW_H, M + UW, y + ROW_H);
+  };
+
+  /* ── Render all rows with auto page-break ── */
+  drawPageTitle();
+  let y = M + TITLE_H;
+  drawHeader(y);
+  y += HEADER_H;
+
+  list.forEach((emp, idx) => {
+    if (y + ROW_H > PH - M - ROW_H) {
+      /* new page — redraw title + header */
+      pdf.addPage();
+      drawPageTitle();
+      y = M + TITLE_H;
+      drawHeader(y);
+      y += HEADER_H;
+    }
+    drawRow(emp, idx, y);
+    y += ROW_H;
+  });
+
+  drawTotalRow(y);
+
+  /* outer table border */
+  pdf.setDrawColor(160, 160, 190);
+  pdf.setLineWidth(0.3);
+  pdf.rect(M, M + TITLE_H, UW, y + ROW_H - (M + TITLE_H));
+
+  pdf.save(`Payroll_${MONTH_NAMES[Number(month)]}_${year}.pdf`);
+}
+
+/* ─────────────────────────────────────────────
    MONTHLY PAYROLL TAB
 ───────────────────────────────────────────── */
 function MonthlyPayroll({ employees }) {
@@ -491,12 +821,13 @@ function MonthlyPayroll({ employees }) {
   const [generating, setGenerating] = useState(false);
   const [viewing, setViewing] = useState(false);
   const [error, setError] = useState(null);
-  const [mode, setMode] = useState(null); // null | 'viewed' | 'generated'
+  const [mode, setMode] = useState(null);
   const [slipLoading, setSlipLoading] = useState(null);
   const [activeSlip, setActiveSlip] = useState(null);
   const [activeEmployee, setActiveEmployee] = useState(null);
+  const [downloadingExcel, setDownloadingExcel] = useState(false);
+  const [downloadingPDF, setDownloadingPDF] = useState(false);
 
-  /* ── VIEW already-generated report via salarySlipList ── */
   const handleViewReport = async () => {
     setViewing(true);
     setError(null);
@@ -526,7 +857,6 @@ function MonthlyPayroll({ employees }) {
     }
   };
 
-  /* ── GENERATE salary for a new month via salary/generate ── */
   const handleGenerate = async () => {
     setGenerating(true);
     setError(null);
@@ -552,7 +882,6 @@ function MonthlyPayroll({ employees }) {
     }
   };
 
-  /* ── VIEW individual slip ── */
   const handleViewSlip = async (emp) => {
     setSlipLoading(emp.user_id);
     try {
@@ -567,7 +896,6 @@ function MonthlyPayroll({ employees }) {
         setActiveSlip(empSlip);
         setActiveEmployee(employees.find(e => e.id === emp.user_id) || null);
       } else {
-        // Fallback: use the generate-response row directly for the slip
         setActiveSlip(emp);
         setActiveEmployee(employees.find(e => e.id === emp.user_id) || null);
       }
@@ -575,6 +903,31 @@ function MonthlyPayroll({ employees }) {
       alert('Error fetching payslip.');
     } finally {
       setSlipLoading(null);
+    }
+  };
+
+  /* ── Download handlers ── */
+  const handleDownloadExcel = () => {
+    setDownloadingExcel(true);
+    try {
+      downloadExcel(list, month, year);
+    } catch (err) {
+      console.error('Excel generation failed:', err);
+      alert('Could not generate Excel. Please try again.');
+    } finally {
+      setDownloadingExcel(false);
+    }
+  };
+
+  const handleDownloadPDF = async () => {
+    setDownloadingPDF(true);
+    try {
+      await downloadTablePDF(list, month, year);
+    } catch (err) {
+      console.error('PDF generation failed:', err);
+      alert('Could not generate PDF. Please try again.');
+    } finally {
+      setDownloadingPDF(false);
     }
   };
 
@@ -646,11 +999,57 @@ function MonthlyPayroll({ employees }) {
 
       {mode && list.length > 0 && (
         <>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {/* Summary + Download buttons row */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
             <SummaryCards
               data={list}
               period={`${MONTH_NAMES[Number(month)]} ${year}`}
             />
+            {/* ── Download buttons — only shown in "viewed" mode ── */}
+            {mode === 'viewed' && (
+              <div className="pay-download-actions">
+                <button
+                  className="pay-download-btn pay-download-btn--excel"
+                  onClick={handleDownloadExcel}
+                  disabled={downloadingExcel || downloadingPDF}
+                  title="Download as Excel"
+                >
+                  {downloadingExcel ? (
+                    <>⏳ Exporting…</>
+                  ) : (
+                    <>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="12" y1="11" x2="12" y2="17"/>
+                        <polyline points="9 14 12 17 15 14"/>
+                      </svg>
+                      Download Excel
+                    </>
+                  )}
+                </button>
+                <button
+                  className="pay-download-btn pay-download-btn--pdf"
+                  onClick={handleDownloadPDF}
+                  disabled={downloadingExcel || downloadingPDF}
+                  title="Download as PDF"
+                >
+                  {downloadingPDF ? (
+                    <>⏳ Generating…</>
+                  ) : (
+                    <>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="12" y1="11" x2="12" y2="17"/>
+                        <polyline points="9 14 12 17 15 14"/>
+                      </svg>
+                      Download PDF
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
           </div>
 
           {mode === 'generated' && (
@@ -679,12 +1078,9 @@ function MonthlyPayroll({ employees }) {
                   <th className="pay-th pay-th--r">Effective Hrs</th>
                   <th className="pay-th pay-th--r">OT Hrs</th>
                   <th className="pay-th pay-th--r">OT Pay</th>
-                  {/* <th className="pay-th pay-th--r">Delayed Hrs</th> */}
                   <th className="pay-th pay-th--r">Gross Salary</th>
                   <th className="pay-th pay-th--r">Break Hrs</th>
-                  {/* <th className="pay-th pay-th--r">Net Idle Hrs</th> */}
                   <th className="pay-th pay-th--c">Sunday Worked Days</th>
-                  <th className="pay-th pay-th--r">Sunday Hours</th>
                   <th className="pay-th pay-th--r">Net Hrs</th>
                   <th className="pay-th pay-th--c">Effective?</th>
                   <th className="pay-th pay-th--r">LOP Days</th>
@@ -712,18 +1108,10 @@ function MonthlyPayroll({ employees }) {
                     <td className="pay-td pay-td--r">{emp.effective_hours != null ? `${emp.effective_hours} hrs` : '—'}</td>
                     <td className="pay-td pay-td--r">{emp.overtime_hours != null ? `${emp.overtime_hours} hrs` : '0 hrs'}</td>
                     <td className="pay-td pay-td--r pay-td--success">₹ {Number(emp.overtime_pay ?? 0).toLocaleString()}</td>
-                    {/* <td className="pay-td pay-td--r pay-td--amount-danger">{emp.delayed_hours != null ? `${emp.delayed_hours} hrs` : '0 hrs'}</td> */}
                     <td className="pay-td pay-td--r">₹ {Number(emp.gross_salary ?? 0).toLocaleString()}</td>
                     <td className="pay-td pay-td--r pay-td--muted">{emp.break_hours != null ? `${emp.break_hours} hrs` : '0 hrs'}</td>
-                    {/* <td className="pay-td pay-td--r pay-td--amount-danger">{emp.net_idle_hours != null ? `${emp.net_idle_hours} hrs` : '0 hrs'}</td> */}
                     <td className="pay-td pay-td--c">
                       {emp.sunday_worked_days_count ?? 0}
-                    </td>
-
-                    <td className="pay-td pay-td--r">
-                      {emp.sunday_worked_hours != null
-                        ? `${emp.sunday_worked_hours} hrs`
-                        : '0 hrs'}
                     </td>
                     <td className="pay-td pay-td--r">{emp.net_hours != null ? `${emp.net_hours} hrs` : '—'}</td>
                     <td className="pay-td pay-td--c">
@@ -855,11 +1243,8 @@ function DailyPayroll() {
                   <th className="pay-th pay-th--r">Effective Hrs</th>
                   <th className="pay-th pay-th--r">OT Hrs</th>
                   <th className="pay-th pay-th--r">OT Pay</th>
-                  {/* <th className="pay-th pay-th--r">Delayed Hrs</th> */}
                   <th className="pay-th pay-th--r">Break Hrs</th>
-                  {/* <th className="pay-th pay-th--r">Net Idle Hrs</th> */}
                   <th className="pay-th">Sunday Worked Days</th>
-                  <th className="pay-th">Sunday Hours</th>
                   <th className="pay-th pay-th--r">Net Hrs</th>
                   <th className="pay-th pay-th--c">Effective?</th>
                   <th className="pay-th pay-th--r">LOP Days</th>
@@ -888,18 +1273,10 @@ function DailyPayroll() {
                     <td className="pay-td pay-td--r">{emp.effective_hours != null ? `${emp.effective_hours} hrs` : '—'}</td>
                     <td className="pay-td pay-td--r">{emp.overtime_hours != null ? `${emp.overtime_hours} hrs` : '0 hrs'}</td>
                     <td className="pay-td pay-td--r pay-td--success">₹ {Number(emp.overtime_pay ?? 0).toLocaleString()}</td>
-                    {/* <td className="pay-td pay-td--r pay-td--amount-danger">{emp.delayed_hours != null ? `${emp.delayed_hours} hrs` : '0 hrs'}</td> */}
-                    <td className="pay-td pay-td--r pay-td--muted">{emp.break_hours != null ? `${emp.break_hours} hrs` : '0 hrs'}</td>
-                    {/* <td className="pay-td pay-td--r pay-td--amount-danger">{emp.net_idle_hours != null ? `${emp.net_idle_hours} hrs` : '0 hrs'}</td> */}
+                    <td className="pay-td pay-td--r pay-td--muted">{emp.break_hours != null ? `${emp.break_hours} hrs` : '0 hrs'}</td>               
                     <td className="pay-td pay-td--c">
                       {emp.sunday_worked_days_count ?? 0}
-                    </td>
-
-                    <td className="pay-td pay-td--r">
-                      {emp.sunday_worked_hours != null
-                        ? `${emp.sunday_worked_hours} hrs`
-                        : '0 hrs'}
-                    </td>
+                    </td>              
                     <td className="pay-td pay-td--r">{emp.net_hours != null ? `${emp.net_hours} hrs` : '—'}</td>
                     <td className="pay-td pay-td--c">
                       <span className={String(emp.effective_condition).toUpperCase() === 'TRUE' ? 'pay-badge pay-badge--success' : 'pay-badge pay-badge--danger'}>
@@ -916,7 +1293,7 @@ function DailyPayroll() {
               </tbody>
               <tfoot>
                 <tr>
-                  <td className="pay-td pay-tfoot-label" colSpan={25}>Total Net Payable</td>
+                  <td className="pay-td pay-tfoot-label" colSpan={24}>Total Net Payable</td>
                   <td className="pay-td pay-td--final pay-td--r">
                     ₹ {data.reduce((s, e) => s + Number(e.net_payable ?? e.final_salary ?? 0), 0).toLocaleString()}
                   </td>

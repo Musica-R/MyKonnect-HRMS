@@ -30,11 +30,15 @@ export default function EmpList() {
   const [activeInterns, setActiveInterns] = useState([]);
   const [inactiveInterns, setInactiveInterns] = useState([]);
 
+  const [roles, setRoles] = useState([]);
+  const [loadingRoles, setLoadingRoles] = useState(false);
+
   useEffect(() => {
     fetchEmployees();
     fetchInactiveEmployees();
     fetchActiveInterns();
     fetchInactiveInterns();
+    fetchRoles();
   }, []);
 
   // const defaultOptions = {
@@ -100,6 +104,23 @@ export default function EmpList() {
     inactive: inactiveEmployees.length,
     activeIntern: activeInterns.length,
     inactiveIntern: inactiveInterns.length,
+  };
+
+  const fetchRoles = async () => {
+    try {
+      setLoadingRoles(true);
+
+      const res = await fetch('https://hrms.mpdatahub.com/api/roles');
+      const json = await res.json();
+
+      if (json.success) {
+        setRoles(json.data);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+
+    setLoadingRoles(false);
   };
 
   /* ---------------- FETCH ACTIVE EMPLOYEES ---------------- */
@@ -191,6 +212,7 @@ export default function EmpList() {
       position: emp.position || '',
       address: emp.address || '',
       dob: emp.dob || '',
+      role_id: emp.role_id || '',
       start_time: emp.start_time ? emp.start_time.slice(0, 5) : '',
       end_time: emp.end_time ? emp.end_time.slice(0, 5) : '',
     });
@@ -251,6 +273,7 @@ export default function EmpList() {
         formData.append('salary', editData.salary);
       }
       if (editData.position) formData.append('position', editData.position);
+      if (editData.role_id) formData.append('role_id', editData.role_id);
       if (editData.address) formData.append('address', editData.address);
       if (editData.dob) formData.append('dob', editData.dob);
 
@@ -514,6 +537,27 @@ export default function EmpList() {
                   value={editData.position}
                   onChange={handleEditChange}
                 />
+              </div>
+
+              <div className="form-groups">
+                <label htmlFor="role_id">Role</label>
+
+                <select
+                  id="role_id"
+                  name="role_id"
+                  value={editData.role_id}
+                  onChange={handleEditChange}
+                >
+                  <option value="">
+                    {loadingRoles ? 'Loading...' : 'Select Role'}
+                  </option>
+
+                  {roles.map((role) => (
+                    <option key={role.id} value={role.id}>
+                      {role.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="form-groups">
