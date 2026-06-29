@@ -77,6 +77,63 @@ function ReasonPopup({ reason, employeeName, onClose }) {
   );
 }
 
+
+function RemarkModal({ status, message, onMessageChange, onConfirm, onCancel, isLoading }) {
+  useEffect(() => {
+    const handler = (e) => { if (e.key === 'Escape') onCancel(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [onCancel]);
+
+  const isApproved = status === 'approved';
+  const accentColor = isApproved ? '#16a34a' : '#dc2626';
+
+  return (
+    <div className="ll-popup-backdrop" onClick={(e) => e.target === e.currentTarget && onCancel()}>
+      <div className="ll-popup-modal">
+        <div className="ll-popup-header" style={{ background: `linear-gradient(135deg, ${accentColor}, ${accentColor}cc)` }}>
+          <div className="ll-popup-title">
+            <span className="ll-popup-icon">
+              {isApproved ? <FiCheckCircle /> : <FiXCircle />}
+            </span>
+            <div>
+              <h3>{isApproved ? 'Approve Leave' : 'Reject Leave'}</h3>
+              <p>Add a message before confirming</p>
+            </div>
+          </div>
+          <button className="ll-popup-close" onClick={onCancel}><FiX /></button>
+        </div>
+        <div className="ll-popup-body">
+          <label className="ll-remark-label">
+            Message <span style={{ color: '#94a3b8', fontWeight: 400 }}>(optional)</span>
+          </label>
+          <textarea
+            className="ll-remark-textarea"
+            placeholder={`Enter message for ${status === 'approved' ? 'approving' : 'rejecting'} this leave…`}
+            value={message}
+            onChange={(e) => onMessageChange(e.target.value)}
+            rows={4}
+            autoFocus
+          />
+          <div className="ll-remark-actions">
+            <button className="ll-remark-cancel" onClick={onCancel} disabled={isLoading}>
+              Cancel
+            </button>
+            <button
+              className="ll-remark-confirm"
+              style={{ background: accentColor }}
+              onClick={onConfirm}
+              disabled={isLoading}
+            >
+              {isLoading && <span className="ll-btn-spinner" />}
+              {isApproved ? 'Approve' : 'Reject'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 export default function LeaveList() {
   const [leaves, setLeaves] = useState([]);
   const [meta, setMeta] = useState({ month: '', total: 0 });
@@ -86,6 +143,8 @@ export default function LeaveList() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [popup, setPopup] = useState(null); // { reason, employeeName }
+  const [remarkModal, setRemarkModal] = useState(null); // { leaveId, newStatus }
+  const [messageText, setMessageText] = useState('');
 
   const now = new Date();
   const currentMonth = String(now.getMonth() + 1);
@@ -141,20 +200,28 @@ export default function LeaveList() {
     fetchLeaves();
   }, [dateFilter]);
 
-  const updateStatus = async (leaveId, newStatus) => {
+  const handleStatusChange = (leaveId, newStatus) => {
+    if (newStatus === 'pending') return;
+    setMessageText('');
+    setRemarkModal({ leaveId, newStatus });
+  };
+
+  const updateStatus = async () => {
+    const { leaveId, newStatus } = remarkModal;
     if (updatingId) return;
     try {
       setUpdatingId(leaveId);
       const res = await fetch(UPDATE_STATUS_API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({ leave_id: leaveId, status: newStatus }),
+        body: JSON.stringify({ leave_id: leaveId, status: newStatus, message: messageText }),
       });
       const data = await res.json();
       if (res.ok && data.success) {
         setLeaves((prev) =>
           prev.map((l) => (l.id === leaveId ? { ...l, status: newStatus } : l))
         );
+        setRemarkModal(null);
       } else {
         alert(data.message || 'Failed to update status');
       }
@@ -207,6 +274,17 @@ export default function LeaveList() {
           reason={popup.reason}
           employeeName={popup.employeeName}
           onClose={() => setPopup(null)}
+        />
+      )}
+
+      {remarkModal && (
+        <RemarkModal
+          status={remarkModal.newStatus}
+          message={messageText}
+          onMessageChange={setMessageText}
+          onConfirm={updateStatus}
+          onCancel={() => setRemarkModal(null)}
+          isLoading={!!updatingId}
         />
       )}
 
@@ -344,6 +422,7 @@ export default function LeaveList() {
                     <th style={{ width: '90px' }}>Session</th>
                     <th style={{ width: '120px' }}>Status</th>
                     <th style={{ width: '130px' }} className="ll-txt-center">Actions</th>
+                    <th style={{ width: '120px' }}>Remarks</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -403,7 +482,7 @@ export default function LeaveList() {
                               className="ll-status-dropdown"
                               value={leave.status || 'pending'}
                               disabled={isUpdating}
-                              onChange={(e) => updateStatus(leave.id, e.target.value)}
+                              onChange={(e) => handleStatusChange(leave.id, e.target.value)}
                             >
                               <option value="pending">Pending</option>
                               <option value="approved">Approved</option>
@@ -415,6 +494,7 @@ export default function LeaveList() {
                             </span>
                           )}
                         </td>
+                         <td className="ll-session-cell">{leave.remarks ?? "-"}</td>
                       </tr>
                     );
                   })}
